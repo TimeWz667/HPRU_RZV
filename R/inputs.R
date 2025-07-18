@@ -11,7 +11,7 @@ load_inputs_background <- function(year0 = 2024, n_sims = 1e3) {
   
   ## Parameters: Demography -----
   load(here::here("pars", "pars_demo.rdata"))
-  load(here::here("data", "sup_demo.rdata"))
+  load(here::here("data", "processed_demography", "sup_demo.rdata"))
   pars_demo <- pars_demo$England
   
   pars$Demography <- pars_demo$N %>% 
@@ -189,7 +189,7 @@ load_inputs_proj <- function(pars) {
   load(here::here("pars", "pars_demo.rdata"))
   pars$Demography <- pars_demo$England
   
-  load(here::here("data", "fitted_coverage.rdata"))
+  load(here::here("pars", "fitted_coverage.rdata"))
   pars$Uptake <- pred1$pars
   
   return(pars)

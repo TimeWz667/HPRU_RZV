@@ -9,7 +9,9 @@ tar_option_set(
 tar_source()
 
 dir.create("pars/", showWarnings = F)
-dir.create("posteriors/", showWarnings = F)
+dir.create("docs/", showWarnings = F)
+dir.create("docs/figs/", showWarnings = F)
+dir.create("docs/tabs/", showWarnings = F)
 
 
 options(dplyr.summarise.inform = FALSE)
@@ -32,7 +34,7 @@ list(
   tar_target(f_rzv, here::here("pars", "pars_ve_rzv_rw_zlg.rdata"), format = "file"),
 
   tar_target(pars_base, load_inputs(pars_ce, vtype = vtype, f_ve_zvl = f_zvl, f_ve_rzv = f_rzv), pattern = cross(vtype, pars_ce)),
-  tar_target(pars_proj, load_inputs_proj(pars_base), pattern = slice(pars_base, c(2, 5))), # (1.5 real world + 1.5 trial)
+  tar_target(pars_proj, load_inputs_proj(pars_base), pattern = slice(pars_base, c(3, 6))), # (3.5 real world + 3.5 trial)
   
   tar_target(f_p_base, save_pars(pars_base, f = here::here("pars", paste0("pars_base_", dis, "_", vtype, ".rdata"))),
              pattern = map(pars_base, cross(vtype, dis)), format = "file"),

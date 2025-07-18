@@ -1,6 +1,4 @@
 
-source(here::here("scripts_premodelling", "1_vis_inputs.R"))
-
 ## Parameters: Demography
 
 source(here::here("scripts_premodelling", "2_1_prepare_pars_demo.R"))
@@ -29,6 +27,7 @@ source(here::here("scripts_premodelling", "4_3_sim_immunity.R"))
 
 
 ## Legacy simulations
+# source(here::here("scripts_premodelling", "1_vis_inputs.R"))
 # source(here::here("scripts_premodelling", "5_1_run_shingrix_nic.R"))
 # source(here::here("scripts_premodelling", "5_2_run_shingrix_ic.R"))
 # source(here::here("scripts_premodelling", "5_3_run_zostavax_nic_aj.R"))
