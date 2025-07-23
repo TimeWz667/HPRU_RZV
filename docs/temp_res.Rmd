@@ -1,0 +1,74 @@
+---
+title: "CEA results"
+author: "Chu-Chang Ku"
+date: "2025-07-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+scenario <- "rw_35"
+
+tab_ce_re <- read_csv(here::here("docs", "tabs", scenario, "stats_re_ce.csv"))
+tab_ce_uv <- read_csv(here::here("docs", "tabs", scenario, "stats_uv_ce.csv"))
+
+
+```
+
+## Threshold price
+
+
+```{r}
+tab_ce_uv %>% 
+  filter(Arm == "RZV_2d") %>% 
+  filter(Index == "Thres") %>% 
+  filter(Age0 >= 60 & Age0 <= 80) %>% 
+  filter(Age0 %in% range(Age0) | M == max(M)) %>% 
+  select(Scenario:Index, M)
+```
+
+```{r}
+tab_ce_uv %>% 
+  filter(Arm == "RZV_1d") %>% 
+  filter(Index == "Thres") %>% 
+  filter(Age0 >= 80) %>% 
+  select(Scenario:Index, M)
+```
+
+```{r}
+tab_ce_uv %>% 
+  filter(Arm == "RZV_2d") %>% 
+  filter(Index == "Thres") %>% 
+  filter(Age0 %in% c(80, 85, 90, 95)) %>% 
+  select(Scenario:Index, M)
+```
+
+```{r}
+tab_ce_uv %>% 
+  filter(Arm == "RZV_1d") %>% 
+  filter(Index == "Thres") %>% 
+  filter(Age0 %in% c(80, 85, 90, 95)) %>% 
+  select(Scenario:Index, M)
+```
+
+```{r}
+tab_ce_re %>% 
+  filter(Index == "Thres") %>% 
+  filter(Scenario != "Overall") %>% 
+  filter(Age0 == 70) %>% 
+  filter(Age1 %in% c(85, 90, 95)) %>% 
+  arrange(Arm, Age1) %>% 
+  select(Scenario:Index, M)
+```
+
+## Sens
+
+```{r}
+sens_10p <- read_csv(here::here("docs", "tabs", scenario, "sens_ce1d.csv"))
+sens_10p %>% 
+  filter(Age0 == 80) %>% 
+  mutate(Diff = Thres - Thres0) %>% 
+  select(Pars, Direction, Age0, Thres, Diff)
+```
+
