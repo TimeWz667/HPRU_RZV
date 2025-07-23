@@ -22,7 +22,4 @@ file.copy(here::here("docs", "figs", "proj", "g_rw_inc_bind.png"), here::here(ro
 file.copy(here::here("docs", "tabs", "Tab_programme_realworld.xlsx"), here::here(root, "Table 1.xlsx"), overwrite = T)
 
 
-
-rmarkdown::render(here::here("docs", "temp_res.Rmd"), here::here(root, "Numbers.html"))
-
 render(here::here("docs", "temp_res.Rmd"), html_document(), here::here(root, "Numbers.html"))

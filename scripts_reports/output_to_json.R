@@ -2,6 +2,9 @@ library(tidyverse)
 library(jsonlite)
 
 
+dir.create(here::here("json"), showWarnings = F)
+
+
 for (vtype in c("rw", "tr")) {
   for (dis in c("0", "15", "35")) {
     folder <- glue::as_glue(vtype) + "_" + dis
