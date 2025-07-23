@@ -1,16 +1,13 @@
 # History files
 .Rhistory
 .Rapp.history
-
 # Session Data files
 .RData
 .RDataTmp
-
 # User-specific files
 .Ruserdata
-
 data/raw_*/
-
 pars/pars_base_*.rdata
 pars/pars_ve_zvl_rwa_*.rdata
 .Rproj.user
+data/raw/
