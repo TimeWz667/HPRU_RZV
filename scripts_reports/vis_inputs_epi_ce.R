@@ -1,3 +1,5 @@
+### Not run without 'data/raw/'
+
 library(targets)
 library(tidyverse)
 library(tidybayes)
@@ -7,14 +9,15 @@ library(ggpubr)
 theme_set(theme_bw(base_size = 14))
 
 
-pars <- tar_read(pars_base, 2)
+pars <- local({load(here::here("pars", "pars_base_35_rw.rdata")); pars})
+
 prefix <- names(pars)[1]
 prefix <- gsub("Year0", "", prefix)
 
 names(pars) <- gsub(prefix, "", names(pars))
 
 pars$Epidemiology
-load(file = here::here("data", "processed_epi", "Epi_HZ_CPRD_23Nov19.rdata"))
+load(file = here::here("data", "raw", "Epi_HZ_CPRD_23Nov19.rdata"))
 epi_hz <- epi_hz %>% filter(IC == 0)
 epi_gp <- epi_gp %>% filter(IC == 0)
 epi_phn <- epi_phn %>% filter(IC == 0)
@@ -24,30 +27,34 @@ load(here::here("data", "processed_demography", "Population_ONS.rdata"))
 
 gs <- list()
 isize <- 2.8 # adjust width of intervals for plotting
+alpha_unused <- 0.4
+
 
 #### Epidemiology -----
 
 gs$g_r_hz <- pars$Epidemiology %>% 
   ggplot() +
   stat_interval(aes(x = Age, y = r_hz), linewidth = isize) +
-  geom_pointinterval(data = epi_hz, aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_hz %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_hz %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
   scale_colour_brewer() +
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
-  labs(subtitle = "Herpes zoster incidence with hospitalisation", colour = "Level")
+  labs(subtitle = "Herpes zoster incidence", colour = "Level")
 
 gs$g_r_hz
 
 gs$g_r_hz_gp <- pars$Epidemiology %>% 
   ggplot() +
   stat_interval(aes(x = Age, y = p_gp * r_hz), linewidth = isize) +
-  geom_pointinterval(data = epi_gp, aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_gp %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_gp %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
   scale_colour_brewer() +
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
-  labs(subtitle = "Herpes zoster incidence without hospitalisation", colour = "Level")
+  labs(subtitle = "Herpes zoster incidence without hospital admission", colour = "Level")
 
 gs$g_r_hz_gp
 
@@ -77,7 +84,8 @@ gs$g_r_hz_hosp
 gs$g_p_phn <- pars$Epidemiology %>% 
   ggplot() +
   stat_interval(aes(x = Age, y = p_phn), linewidth = isize) +
-  geom_pointinterval(data = epi_phn, aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_phn %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = epi_phn %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
   scale_colour_brewer() +
   scale_y_continuous("Proportion of cases", labels = scales::percent) +
   labs(subtitle = "Postherpetic neuralgia", colour = "Level") +
@@ -238,7 +246,7 @@ gs$g_cost_gpphn <- pars$CostEff %>%
 apply_lor <- function(p0, lor) 1 / (1 + exp(-log(p0 / (1 - p0)) - lor))
 
 
-dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   mutate(
@@ -381,7 +389,7 @@ gs$g_vac_ve_rzv
 ## ZVL uptake
 
 load(here::here("data", "processed_vaccine", "coverage.rdata"))
-load(here::here("data", "fitted_coverage.rdata"))
+load(here::here("pars", "fitted_coverage.rdata"))
 
 
 d <- coverage %>% 
@@ -489,10 +497,11 @@ gs$g_cost <- ggarrange(
 
 
 
-ggsave(gs$g_epi, filename = here::here("docs", "figs", "data", "g_epi.png"), width = 5.5, height = 10)
-ggsave(gs$g_vac, filename = here::here("docs", "figs", "data", "g_vac.png"), width = 7.5, height = 14)
-ggsave(gs$g_base, filename = here::here("docs", "figs", "data", "g_base.png"), width = 15, height = 12)
+ggsave(gs$g_epi, filename = here::here("docs", "figs", "inputs", "g_epi.png"), width = 5.5, height = 10)
+ggsave(gs$g_vac, filename = here::here("docs", "figs", "inputs", "g_vac.png"), width = 7.5, height = 14)
+ggsave(gs$g_base, filename = here::here("docs", "figs", "inputs", "g_base.png"), width = 15, height = 12)
 
-ggsave(gs$g_demo, filename = here::here("docs", "figs", "data", "g_demo.png"), width = 7.5, height = 10)
-ggsave(gs$g_cost, filename = here::here("docs", "figs", "data", "g_cost.png"), width = 5.5, height = 10)
-ggsave(gs$g_bind, filename = here::here("docs", "figs", "data", "g_bind.png"), width = 15, height = 20)
+ggsave(gs$g_demo, filename = here::here("docs", "figs", "inputs", "g_demo.png"), width = 7.5, height = 10)
+ggsave(gs$g_cost, filename = here::here("docs", "figs", "inputs", "g_cost.png"), width = 5.5, height = 10)
+ggsave(gs$g_bind, filename = here::here("docs", "figs", "inputs", "g_bind.png"), width = 15, height = 20)
+

@@ -12,17 +12,12 @@ tab_ce_uv %>%
   filter(Index == "Thres")
 
 
-tab_ce_uv %>% 
-  filter(Arm == "RZV_2d") %>% 
-  filter(Index == "Thres") %>% 
-  filter(Age0 >= 70 & Age0 <= 80) %>% 
-  pull(M) %>% range
-
 
 tab_ce_uv %>% 
   filter(Arm == "RZV_2d") %>% 
   filter(Index == "Thres") %>% 
-  filter(Age0 >= 80)
+  filter(Age0 >= 60 & Age0 <= 80) %>% 
+  filter(Age0 %in% range(Age0) | M == max(M))
 
 
 tab_ce_uv %>% 
@@ -30,25 +25,23 @@ tab_ce_uv %>%
   filter(Index == "Thres") %>% 
   filter(Age0 >= 80)
 
+
 tab_ce_uv %>% 
   filter(Arm == "RZV_2d") %>% 
   filter(Index == "Thres") %>% 
   filter(Age0 %in% c(80, 85, 90, 95))
+
 
 tab_ce_uv %>% 
   filter(Arm == "RZV_1d") %>% 
   filter(Index == "Thres") %>% 
   filter(Age0 %in% c(80, 85, 90, 95))
 
-tab_ce_re %>% 
-  filter(Arm == "ReRZV_2d") %>% 
-  filter(Index == "Thres") %>%
-  filter(Age0 == 70) %>% 
-  filter(Age1 %in% c(85, 90, 95))
 
 tab_ce_re %>% 
-  filter(Arm == "ReRZV_1d") %>% 
   filter(Index == "Thres") %>% 
+  filter(Scenario != "Overall") %>% 
   filter(Age0 == 70) %>% 
-  filter(Age1 %in% c(85, 90, 95))
+  filter(Age1 %in% c(85, 90, 95)) %>% 
+  arrange(Arm, Age1)
 

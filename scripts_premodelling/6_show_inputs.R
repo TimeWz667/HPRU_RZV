@@ -11,7 +11,7 @@ dir.create(here::here("docs", "figs", "inputs"), showWarnings = F)
 
 load(here::here("pars", "pars_base_15_rw.rdata"))
 
-load(here::here("data", "fitted_coverage.rdata"))
+load(here::here("pars", "fitted_coverage.rdata"))
 
 lu <- as.matrix(1 - exp(confint(pred1$fit)))
 

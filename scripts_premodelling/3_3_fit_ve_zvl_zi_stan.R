@@ -9,7 +9,7 @@ options(mc.cores = 6)
 rstan_options(auto_write = TRUE)
 
 
-dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   filter(Vaccine == "Zostavax") %>% 
@@ -23,7 +23,7 @@ dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>%
   )
 
 
-dat_ve_agp <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve_agp <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   filter(Vaccine == "Zostavax") %>% 
@@ -38,7 +38,7 @@ dat_ve_agp <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>%
   )
 
 
-dat_ve_agp <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve_agp <- read_xlsx(here::here("data","processed_vaccine",  "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   filter(Vaccine == "Zostavax") %>% 

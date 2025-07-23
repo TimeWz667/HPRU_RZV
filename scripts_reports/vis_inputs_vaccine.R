@@ -1,4 +1,4 @@
- library(tidyverse)
+library(tidyverse)
 library(readxl)
 library(ggpubr)
 library(tidybayes)
@@ -9,7 +9,7 @@ theme_set(theme_bw())
 apply_lor <- function(p0, lor) 1 / (1 + exp(-log(p0 / (1 - p0)) - lor))
 
 
-dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   mutate(
@@ -23,7 +23,7 @@ dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>%
 
 
 load(here::here("pars", "pars_ve_lor.rdata"))
-load(here::here("pars", "pars_ve_zvl_rwa.rdata"))
+load(here::here("pars", "pars_ve_zvl_rwa_zlg.rdata"))
 load(here::here("pars", "pars_ve_rzv_rw_zlg.rdata"))
 
 
@@ -260,34 +260,34 @@ g_alt <- ggpubr::ggarrange(
   nrow = 2, ncol = 2
 )
 
-zvl_prev <- read_csv(here::here("data", "previous", "2019_fig9_ZVL.csv"))
-
-g_vax_comp_zvl <- ggplot(data = d_zvl2[d_zvl2$Yr <= 10, ]) +
-  geom_ribbon(aes(x = Yr, ymin = L, ymax = U), fill = "#36f", alpha = 0.2) +
-  geom_line(aes(x = Yr, y = M), colour = "#36f") +
-  geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age60), col = "#db2", linewidth = 2) +
-  geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age70), col = "#ec3", linewidth = 2) +
-  geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age80), col = "#fd4", linewidth = 2) +
-  scale_y_continuous("VE for ZVL, %", label = scales::percent) +
-  scale_x_continuous("Year since vaccinated", breaks = c(2, 4, 6, 8, 10)) +
-  expand_limits(y = 0:1)
-
-rzv_prev <- read_csv(here::here("data", "previous", "2019_fig10_RZV.csv"))
-
-g_vax_comp_rzv <- ggplot(ve_rzv[ve_rzv$Tag == "Real-world, two doses (Baseline)" & ve_rzv$Yr <= 10, ]) +
-  geom_ribbon(data = d_rw[d_rw$Yr <= 10, ], aes(x = Yr, ymin = L, ymax = U), fill = "#36f", alpha = 0.2) +
-  geom_line(aes(x = Yr, y = VE), colour = "#36f") +
-  geom_line(data = rzv_prev[rzv_prev$time >= 1, ], aes(x = time, y = Age70), col = "#ec3", linewidth = 2) +
-  scale_y_continuous("VE for RZV, %", labels = scales::percent) +
-  scale_x_continuous("Year since vaccinated", breaks = c(2, 4, 6, 8, 10)) +
-  expand_limits(y = 0:1, x = 10) +
-  theme(legend.position = c(0, 0), legend.justification = c(-0.01, -0.1), legend.background = element_blank())
-
-g_vax_comp <- ggpubr::ggarrange(
-  g_vax_comp_zvl + labs(subtitle = "(A) ZVL: Comparison"), 
-  g_vax_comp_rzv + labs(subtitle = "(B) RZV: Comparison"),
-  nrow = 1, ncol = 2
-)
+# zvl_prev <- read_csv(here::here("data", "previous", "2019_fig9_ZVL.csv"))
+# 
+# g_vax_comp_zvl <- ggplot(data = d_zvl2[d_zvl2$Yr <= 10, ]) +
+#   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), fill = "#36f", alpha = 0.2) +
+#   geom_line(aes(x = Yr, y = M), colour = "#36f") +
+#   geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age60), col = "#db2", linewidth = 2) +
+#   geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age70), col = "#ec3", linewidth = 2) +
+#   geom_line(data = zvl_prev[zvl_prev$time >= 1, ], aes(x = time, y = Age80), col = "#fd4", linewidth = 2) +
+#   scale_y_continuous("VE for ZVL, %", label = scales::percent) +
+#   scale_x_continuous("Year since vaccinated", breaks = c(2, 4, 6, 8, 10)) +
+#   expand_limits(y = 0:1)
+# 
+# rzv_prev <- read_csv(here::here("data", "previous", "2019_fig10_RZV.csv"))
+# 
+# g_vax_comp_rzv <- ggplot(ve_rzv[ve_rzv$Tag == "Real-world, two doses (Baseline)" & ve_rzv$Yr <= 10, ]) +
+#   geom_ribbon(data = d_rw[d_rw$Yr <= 10, ], aes(x = Yr, ymin = L, ymax = U), fill = "#36f", alpha = 0.2) +
+#   geom_line(aes(x = Yr, y = VE), colour = "#36f") +
+#   geom_line(data = rzv_prev[rzv_prev$time >= 1, ], aes(x = time, y = Age70), col = "#ec3", linewidth = 2) +
+#   scale_y_continuous("VE for RZV, %", labels = scales::percent) +
+#   scale_x_continuous("Year since vaccinated", breaks = c(2, 4, 6, 8, 10)) +
+#   expand_limits(y = 0:1, x = 10) +
+#   theme(legend.position = c(0, 0), legend.justification = c(-0.01, -0.1), legend.background = element_blank())
+# 
+# g_vax_comp <- ggpubr::ggarrange(
+#   g_vax_comp_zvl + labs(subtitle = "(A) ZVL: Comparison"), 
+#   g_vax_comp_rzv + labs(subtitle = "(B) RZV: Comparison"),
+#   nrow = 1, ncol = 2
+# )
 
 
 
@@ -295,7 +295,7 @@ g_vax_comp <- ggpubr::ggarrange(
 
 
 load(here::here("data", "processed_vaccine", "coverage.rdata"))
-load(here::here("data", "fitted_coverage.rdata"))
+load(here::here("pars", "fitted_coverage.rdata"))
 
 
 d <- coverage %>% 
@@ -326,10 +326,11 @@ g_uptake_gof <- pred1$pred %>%
 g_uptake_gof
 
 
-ggsave(g_zvl, filename = here::here("docs", "figs", "g_vaccine_ve_zvl.png"), width = 12, height = 6)
-ggsave(g_rzv, filename = here::here("docs", "figs", "g_vaccine_ve_rzv.png"), width = 12, height = 6)
-ggsave(g_alt, filename = here::here("docs", "figs", "g_vaccine_ve_alt.png"), width = 10, height = 9)
-ggsave(g_uptake_gof, filename = here::here("docs", "figs", "g_vaccine_uptake.png"), width = 6, height = 4.5)
-ggsave(g_vax_comp, filename = here::here("docs", "figs", "g_vaccine_comparison.png"), width = 7, height = 3)
+dir.create("docs/figs/inputs", showWarnings = T)
+ggsave(g_zvl, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_zvl.png"), width = 12, height = 6)
+ggsave(g_rzv, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_rzv.png"), width = 12, height = 6)
+ggsave(g_alt, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_alt.png"), width = 10, height = 9)
+ggsave(g_uptake_gof, filename = here::here("docs", "figs", "inputs", "g_vaccine_uptake.png"), width = 6, height = 4.5)
+#ggsave(g_vax_comp, filename = here::here("docs", "figs", "g_vaccine_comparison.png"), width = 7, height = 3)
 
 
