@@ -41,7 +41,7 @@ gs$g_r_hz <- pars$Epidemiology %>%
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
-  labs(subtitle = "Herpes zoster incidence", colour = "Level")
+  labs(subtitle = "Herpes zoster incidence, total", colour = "Level")
 
 gs$g_r_hz
 
@@ -54,7 +54,7 @@ gs$g_r_hz_gp <- pars$Epidemiology %>%
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
-  labs(subtitle = "Herpes zoster incidence without hospital admission", colour = "Level")
+  labs(subtitle = "Herpes zoster incidence, general practice only", colour = "Level")
 
 gs$g_r_hz_gp
 
