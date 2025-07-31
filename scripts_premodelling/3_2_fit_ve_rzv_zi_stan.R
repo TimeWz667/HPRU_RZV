@@ -93,7 +93,7 @@ for (key_model in c("zl_exp", "zl_gamma")) {
   
   tag <- glue::as_glue("y10")
   
-  save(sel, file = here::here("pars", "pars_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".rdata"))
+  save(sel, file = here::here("pars", "post_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".rdata"))
   write_csv(sims, here::here("pars", "sims_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".csv"))
   ggsave(g_gof, filename = here::here("docs", "figs", "inputs", "g_pars_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".png"), width = 7, height = 5.5)
   
