@@ -23,7 +23,7 @@ tab_ce_uv <- read_csv(here::here("docs", "tabs", scenario, "stats_uv_ce.csv"))
 tab_ce_uv %>% 
   filter(Arm == "RZV_2d") %>% 
   filter(Index == "Thres") %>% 
-  filter(Age0 >= 60 & Age0 <= 80) %>% 
+  filter(Age0 >= 60 & Age0 < 80) %>% 
   filter(Age0 %in% range(Age0) | M == max(M)) %>% 
   select(Scenario:Index, M)
 ```
