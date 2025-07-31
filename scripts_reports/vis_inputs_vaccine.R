@@ -21,6 +21,17 @@ dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 
   )
 
 
+dat_ve2 <- read_xlsx(here::here("data", "processed_vaccine", "VE_Strezova.xlsx")) %>% 
+  mutate(
+    Year = gsub("Year ", "", Year),
+    Year = as.numeric(Year),
+    across(c(M, LL, UL), \(d) gsub("·", ".", d) %>% as.double() / 100)
+  )  %>% 
+  filter(Age_group == "Overall") %>% 
+  select(Yr = Year, M = M, L = LL, U = UL)
+
+
+
 
 load(here::here("pars", "pars_ve_lor.rdata"))
 load(here::here("pars", "pars_ve_zvl_rwa_zlg.rdata"))
@@ -187,7 +198,7 @@ g_rzv_gof <- pars_ve_rzv %>%
   ggplot() +
   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
   geom_line(aes(x = Yr, y = M)) +
-  geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_pointrange(data = dat_ve2, aes(x = Yr, y = M, ymin = L, ymax = U)) +
   scale_y_continuous("Vaccine efficacy, %", label = scales::percent) +
   scale_x_continuous("Year since vaccinated") +
   expand_limits(y = 0)

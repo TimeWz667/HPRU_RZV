@@ -80,15 +80,23 @@ save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rwa_zle.rdata"))
 
 
 
-## RZV -----
+## RZV gamma ----- 
 
 find_lor <- function(p0, p1) log(p1 / (1 - p1)) - log(p0 / (1 - p0))
 apply_lor <- function(p0, lor) 1 / (1 + exp(-log(p0 / (1 - p0)) - lor))
 
-find_lor(0.9, 0.4)
-apply_lor(0.9, find_lor(0.9, 0.4))
 
-lor_rw <- find_lor(0.914, 0.79)
+tag <- glue::as_glue("y11m")
+ve_rzv <- local({load(here::here("pars", "pars_ve_rzv_" + tag + "_zl_gamma.rdata")); sel})
+
+ve_y1 <- ve_rzv %>% 
+  mutate(
+    VE = p0 * (1 - pgamma(1, alpha, beta))
+  ) %>% 
+  pull(VE) %>% mean
+
+
+lor_rw <- find_lor(ve_y1, 0.79)
 lor_single <- find_lor(0.701, 0.569) # Lzurieta HS 2021
 
 lor_re <- find_lor(0.79, 0.75)
@@ -97,13 +105,11 @@ lor_ic <- find_lor(0.705, 0.641)
 lor_ic_single <- find_lor(0.705, 0.37)
 
 
-apply_lor(0.82, lor_single)
-
 save(lor_rw, lor_re, lor_single, lor_ic, lor_ic_single, file = here::here("pars", "pars_ve_lor.rdata"))
 
-ve_rzv <- local({load(here::here("pars", "pars_ve_rzv_zl_gamma.rdata")); sel})
 
 
+### RZV gamma -----
 pars_ve_rzv <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
   left_join(ve_rzv) %>% 
   mutate(
@@ -162,10 +168,9 @@ pars_ve_rzv <- crossing(Key = 1:n_sims, Yr = 1:50) %>%
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_short_zlg.rdata"))
 
 
+## RZV exp -----
 
-
-
-ve_rzv <- local({load(here::here("pars", "pars_ve_rzv_zl_exp.rdata")); sel})
+ve_rzv <- local({load(here::here("pars", "pars_ve_rzv_" + tag + "_zl_exp.rdata")); sel})
 
 
 pars_ve_rzv <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
@@ -213,38 +218,32 @@ bind_rows(
   expand_limits(y = 0:1)
 
 
-## Plot for check
-sim_ve <- bind_rows(
-  crossing(Yr = 1:20, Key = 1:100) %>% 
-    left_join(ve_rzv) %>% 
-    mutate(
-      VE = p0 * (1 - pgamma(Yr, alpha, beta)) * 0.91,
-      Vaccine = "RZV"
-    ),
-  crossing(Yr = 1:20, Key = 1:100) %>% 
-    left_join(ve_zvl) %>% 
-    mutate(
-      VE = p0 * (1 - pgamma(Yr, alpha, beta)),
-      Vaccine = "ZVL"
-    )
-)
-   
-sim_ve %>% 
-  ggplot() +
-  geom_line(aes(x = Yr, y = VE, colour = Vaccine, group = Key), alpha = 0.1) +
-  facet_grid(.~Vaccine) + 
-  scale_y_continuous("Vaccine effectiveness, %", labels = scales::percent) +
-  expand_limits(y = 0:1)
+pars_ve_rzv <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
+  left_join(ve_rzv) %>% 
+  mutate(
+    VE = p0 * (1 - pgamma(pmin(Yr, 10), alpha, beta)) ,
+    VE = apply_lor(VE, lor_rw),
+    Vaccine = "RZV",
+    Variant = "RW",
+    IC = F
+  ) %>% 
+  select(Key, Vaccine, Yr, VE, IC)
+
+save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_long_zle.rdata"))
 
 
+pars_ve_rzv <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
+  left_join(ve_rzv) %>% 
+  mutate(
+    VE = p0 * (1 - pgamma(pmin(Yr, 10), alpha, beta)) ,
+    VE = apply_lor(VE, lor_rw),
+    VE = ifelse(Yr <= 10, VE, 0),
+    Vaccine = "RZV",
+    Variant = "RW",
+    IC = F
+  ) %>% 
+  select(Key, Vaccine, Yr, VE, IC)
 
-
-pars_ve_rzv %>% 
-  filter(Key < 200) %>% 
-  ggplot() +
-  geom_line(aes(x = Yr, y = VE, group = Key), alpha = 0.1) +
-  scale_y_continuous("Vaccine effectiveness, %", labels = scales::percent) +
-  expand_limits(y = 0:1)
-
+save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_short_zle.rdata"))
 
 

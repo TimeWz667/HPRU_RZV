@@ -10,7 +10,7 @@ rstan_options(auto_write = TRUE)
 
 
 ## Data loading
-dat_ve <- read_xlsx(here::here("data", "VE.xlsx"), sheet = 1) %>% 
+dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
   filter(Use) %>% 
   filter(Type == "HZ") %>% 
   mutate(
@@ -37,7 +37,6 @@ ds <- dat_ve %>%
   mutate(
     sd = (U - L) / 2 / 1.96,
     n = M * (1 - M) / sd ** 2,
-    n = round(n),
     n = c(133, 146, 125, 105, 68, 70, 66, 70, 52),
     n = round(n / n()),
     #n = c(14035, 13564, 13074, 12517, 7277, 7100, 6878, 6648, 6258),
@@ -92,15 +91,12 @@ for (key_model in c("zl_exp", "zl_gamma")) {
     scale_x_continuous("Year since vaccinated") +
     expand_limits(y = 0)
   
+  tag <- glue::as_glue("y10")
   
-  save(post, file = here::here("out", "pars_ve_rzv_" + glue::as_glue(key_model) + ".rdata"))
-  save(sel, file = here::here("pars", "pars_ve_rzv_" + glue::as_glue(key_model) + ".rdata"))
-  write_csv(sims, here::here("pars", "sims_ve_rzv_" + glue::as_glue(key_model) + ".csv"))
-  ggsave(g_gof, filename = here::here("docs", "figs", "g_pars_ve_rzv_" + glue::as_glue(key_model) + ".png"), width = 7, height = 5.5)
+  save(sel, file = here::here("pars", "pars_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".rdata"))
+  write_csv(sims, here::here("pars", "sims_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".csv"))
+  ggsave(g_gof, filename = here::here("docs", "figs", "inputs", "g_pars_ve_rzv_" + tag + "_" + glue::as_glue(key_model) + ".png"), width = 7, height = 5.5)
+  
   
 }
-
-
-
-
 
