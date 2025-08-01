@@ -24,3 +24,10 @@ model {
   }
 }
 
+generated quantities {
+  vector[N] log_lik;
+  for (i in 1:N) {
+    log_lik[i] = binomial_lpmf(y[i] | n[i], prob[i]);
+  }
+}
+

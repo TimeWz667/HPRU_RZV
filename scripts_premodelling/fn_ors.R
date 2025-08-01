@@ -1,4 +1,22 @@
-apply_lor <- function(p0, lor) 1 / (1 + exp(-log(p0 / (1 - p0)) - lor))
+
+find_lor <- function(p0, p1) log(p1 / (1 - p1)) - log(p0 / (1 - p0))
+
+
+apply_lor <- function(p0, lor) {
+  lo0 <- log(p0 / (1 - p0))
+  1 / (1 + exp(- lo0 - lor))
+}
+
+
+align_to <- function(ves0, tar) {
+  tar <- 0.9
+  ves0 <- runif(300, 0.5, 0.7)
+  lor <- find_lor(mean(ves0), tar)
+  lor
+  
+  ves1 <- apply_lor(ves0, lor)
+  return(ves1)
+}
 
 
 get_or <- function(mlu, ref_mlu) {
@@ -21,20 +39,3 @@ get_or <- function(mlu, ref_mlu) {
   }
   return(c(or0, quantile(exp(lors[sel]), c(0.025, 0.975))))
 }
-
-## RZV
-# Singe-dose / two-doses Izurieta 2021
-get_or(c(56.9, 55.0, 58.8) / 100, c(70.1, 68.6, 71.5) / 100)
-
-
-# Realworld Mbinta 2022 / Trial Strezova 2022
-get_or(c(79, 58, 90) / 100, c(89, 85.6, 91.3) / 100)
-
-
-## ZVL
-# UK / Meta
-get_or(c(64, 60, 68) / 100, c(67.2, 65.4, 68.8) / 100)
-
-
-
-
