@@ -57,11 +57,11 @@ dsm$N <- length(dsm$yr)
 n_collect <- 2000
 log_lik <- list()
 
-for (key_model in c("zle", "zlg")) {
-  if (key_model == "zle") {
-    model <-  stan_model(here::here("models", "zl_exp.stan"))
+for (key_model in c("zie", "zig")) {
+  if (key_model == "zie") {
+    model <-  stan_model(here::here("models", "zi_exp.stan"))
   } else {
-    model <-  stan_model(here::here("models", "zl_gamma.stan"))
+    model <-  stan_model(here::here("models", "zi_gamma.stan"))
   }
   
   for (skip910 in c(F, T)) {
@@ -71,10 +71,10 @@ for (key_model in c("zle", "zlg")) {
       post <- sampling(model, data = ds, chains = 3, iter = 2000, warmup = floor(2000 - 1000))
     }
     
-    if (key_model == "zlg") {
+    if (key_model == "zig") {
       sel <- data.frame(rstan::extract(post, pars = c("p0", "alpha", "beta"))) %>%
         as_tibble()
-    } else if (key_model == "zle") {
+    } else {
       sel <- data.frame(rstan::extract(post, pars = c("p0", "beta"))) %>%
         as_tibble() %>%
         mutate(alpha = 1)

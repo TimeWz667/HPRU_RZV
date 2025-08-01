@@ -50,20 +50,20 @@ ds$N <- length(ds$yr)
 n_collect <- 2000
 log_lik <- list()
 
-for (key_model in c("zle", "zlg")) {
-  if (key_model == "zle") {
-    model <-  stan_model(here::here("models", "zl_exp.stan"))
+for (key_model in c("zie", "zig")) {
+  if (key_model == "zie") {
+    model <-  stan_model(here::here("models", "zi_exp.stan"))
   } else {
-    model <-  stan_model(here::here("models", "zl_gamma.stan"))
+    model <-  stan_model(here::here("models", "zi_gamma.stan"))
   }
   
   post <- sampling(model, data = ds, chains = 3, iter = 2000, warmup = floor(2000 - 1000))
   
   
-  if (key_model == "zlg") {
+  if (key_model == "zig") {
     sel <- data.frame(rstan::extract(post, pars = c("p0", "alpha", "beta"))) %>%
       as_tibble()
-  } else if (key_model == "zle") {
+  } else {
     sel <- data.frame(rstan::extract(post, pars = c("p0", "beta"))) %>%
       as_tibble() %>%
       mutate(alpha = 1)
@@ -103,43 +103,3 @@ for (key_model in c("zle", "zlg")) {
 loo_compare(loo::waic(log_lik[[1]]), loo::waic(log_lik[[2]]))
 loo_compare(loo::loo(log_lik[[1]]), loo::loo(log_lik[[2]]))
 
-
-d_agp <- tibble(Age = 50:100) %>% 
-  mutate(
-    Agp = case_when(
-      Age < 60 ~ 55,
-      Age < 70 ~ 65, 
-      Age < 80 ~ 75,
-      T ~ 85
-    )
-  ) %>% 
-  left_join(dat_ve_agp) %>% 
-  mutate(
-    odd = log(M / (1 - M)),
-    or = odd - odd[Age == 70],
-    or_spline = splinefun(unique(Agp), unique(or), method = "natural")(Age)
-  )
-
-
-g_test_agp <- d_agp %>% 
-  mutate(
-    M2 = splinefun(unique(Agp), unique(M), method = "natural")(Age),
-    odd3 = splinefun(unique(Agp), unique(odd), method = "natural")(Age),
-    M3 = 1 / (1 + exp(-odd3)),
-    or4 = splinefun(unique(Agp), unique(or), method = "natural")(Age),
-    odd4 = or4 + odd[Age == 70],
-    M4 = 1 / (1 + exp(-odd4))
-  ) %>%   
-  ggplot() +
-  geom_line(aes(x = Age, y = M)) +
-  geom_line(aes(x = Age, y = M2)) +
-  geom_line(aes(x = Age, y = M3)) +
-  geom_line(aes(x = Age, y = M4)) +
-  expand_limits(y = 0:1)
-
-g_test_agp
-
-
-d_agp %>% 
-  select(Age, or70 = or, or70spline = or_spline) %>%
-  write_csv(here::here("pars", "fitted_ve_zvl_agp.csv"))

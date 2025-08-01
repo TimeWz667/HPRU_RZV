@@ -2,32 +2,37 @@ library(tidyverse)
 library(tidybayes)
 
 
+source(here::here("scripts_premodelling", "fn_ors.R"))
+
 
 n_sims <- 2e3
+load(here::here("pars", "fitted_ve_offset.rdata"))
+
 
 ## ZVL -----
 ve_zvl <- local({load(here::here("pars", "fitted_ve_zvl_zlg.rdata")); sel})
-ve_zvl_agp <- read_csv(here::here("pars", "fitted_ve_zvl_agp.csv"))
 
 
 pars_ve_zvl <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
   left_join(ve_zvl) %>% 
   mutate(
     VE = p0 * (1 - pgamma(Yr, alpha, beta)),
+    VE = align_to(VE, mean(VE[Yr == 1]), tar = offset_zvl$ve0),
     Vaccine = "ZVL",
     IC = F
   ) %>% 
   select(Key, Yr, Vaccine, VE, IC)
 
-save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rw.rdata"))
+save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rw_zlg.rdata"))
 
 
 pars_ve_zvl <- crossing(Age = 50:100, Key = 1:n_sims, Yr = 1:50) %>% 
   filter(Age - Yr >= 50) %>% 
   left_join(ve_zvl) %>% 
-  left_join(ve_zvl_agp) %>% 
+  left_join(offset_zvl$agp) %>% 
   mutate(
     VE0 = p0 * (1 - pgamma(Yr, alpha, beta)),
+    VE0 = align_to(VE0, mean(VE0[Yr == 1]), tar = offset_zvl$ve0),
     oddVE = log(VE0 / (1 - VE0)) + or70spline,
     VE = 1 / (1 + exp(-oddVE)),
     Vaccine = "ZVL",
@@ -35,44 +40,34 @@ pars_ve_zvl <- crossing(Age = 50:100, Key = 1:n_sims, Yr = 1:50) %>%
   ) %>% 
   select(Key, Age, Yr, Vaccine, VE0, VE, IC)
 
-save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rwa.rdata"))
-
-pars_ve_zvl %>% 
-  group_by(Age, Yr) %>% 
-  summarise(across(c(VE, VE0), mean)) %>% 
-  ggplot() +
-  geom_point(aes(x = Age, y = VE, colour = Yr)) +
-  scale_y_continuous("Vaccine effectiveness, %", labels = scales::percent) +
-  expand_limits(y = 0:1)
+save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rwa_zlg.rdata"))
 
 
+#### ZVL zie
 ve_zvl <- local({load(here::here("pars", "pars_ve_zvl_zle.rdata")); sel})
-ve_zvl_agp <- read_csv(here::here("pars", "pars_ve_zvl_agp.csv"))
 
 
 pars_ve_zvl <- crossing(Key = 1:n_sims, Yr = 1:50) %>% 
   left_join(ve_zvl) %>% 
   mutate(
     VE = p0 * (1 - pgamma(Yr, alpha, beta)),
+    VE = align_to(VE, mean(VE[Yr == 1]), tar = offset_zvl$ve0),
     Vaccine = "ZVL",
     IC = F
   ) %>% 
   select(Key, Yr, Vaccine, VE, IC)
 
-save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rw_zle.rdata"))
+save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rw_zie.rdata"))
 
 
-
-pars_ve_zvl <- crossing(Age = 50:100, Key = 1:n_sims, Yr = 1:50) %>% 
+pars_ve_zvl <- pars_ve_zvl %>% 
+  crossing(Age = 50:100) %>% 
   filter(Age - Yr >= 50) %>% 
-  left_join(ve_zvl) %>% 
-  left_join(ve_zvl_agp) %>% 
+  left_join(offset_zvl$agp) %>%  
+  rename(VE0 = VE) %>% 
   mutate(
-    VE0 = p0 * (1 - pgamma(Yr, alpha, beta)),
     oddVE = log(VE0 / (1 - VE0)) + or70spline,
-    VE = 1 / (1 + exp(-oddVE)),
-    Vaccine = "ZVL",
-    IC = F
+    VE = 1 / (1 + exp(-oddVE))
   ) %>% 
   select(Key, Age, Yr, Vaccine, VE0, VE, IC)
 

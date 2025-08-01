@@ -8,10 +8,8 @@ apply_lor <- function(p0, lor) {
 }
 
 
-align_to <- function(ves0, tar) {
-  tar <- 0.9
-  ves0 <- runif(300, 0.5, 0.7)
-  lor <- find_lor(mean(ves0), tar)
+align_to <- function(ves0, m, tar) {
+  lor <- find_lor(m, tar)
   lor
   
   ves1 <- apply_lor(ves0, lor)
