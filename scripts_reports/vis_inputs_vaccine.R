@@ -6,7 +6,9 @@ library(tidybayes)
 theme_set(theme_bw())
 
 
-apply_lor <- function(p0, lor) 1 / (1 + exp(-log(p0 / (1 - p0)) - lor))
+
+source(here::here("scripts_premodelling", "fn_ors.R"))
+
 
 
 dat_ve <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"), sheet = 1) %>% 
@@ -33,9 +35,9 @@ dat_ve2 <- read_xlsx(here::here("data", "processed_vaccine", "VE_Strezova.xlsx")
 
 
 
-load(here::here("pars", "pars_ve_lor.rdata"))
-load(here::here("pars", "pars_ve_zvl_rwa_zlg.rdata"))
-load(here::here("pars", "pars_ve_rzv_rw_zlg.rdata"))
+load(here::here("pars", "fitted_ve_offset.rdata"))
+load(here::here("pars", "pars_ve_zvl_rwa.rdata"))
+load(here::here("pars", "pars_ve_rzv_rw.rdata"))
 
 
 
@@ -143,6 +145,26 @@ g_zvl_var_alt <- ve_zvl %>%
 
 
 ## RZV VE -----
+
+load(here::here("pars", "pars_ve_rzv_tr.rdata"))
+
+d_tr <- pars_ve_rzv%>% 
+  filter(Yr <= 20) %>% 
+  #filter(Yr %in% c(5, 10)) %>% 
+  group_by(Vaccine, Yr) %>% 
+  summarise(
+    L = quantile(VE, 0.025),
+    U = quantile(VE, 0.975),
+    VE = median(VE)
+  ) %>% 
+  mutate(
+    Tag = "Trial, two doses"
+  )
+
+
+load(here::here("pars", "pars_ve_rzv_rw.rdata"))
+
+
 d <- pars_ve_rzv%>% 
   filter(Yr <= 20) %>% 
   #filter(Yr %in% c(5, 10)) %>% 
@@ -157,24 +179,20 @@ d <- pars_ve_rzv%>%
 
 ve_rzv <- bind_rows(
   d, 
+  d_tr,
   d %>% 
     mutate(
-      VE = apply_lor(VE, - lor_rw),
-      Tag = "Trial, two doses"
-    ),
-  d %>% 
-    mutate(
-      VE = apply_lor(VE, lor_single),
+      VE = apply_lor(VE, offset_rzv$single),
       Tag = "Real-world, single dose"
     ),
   d %>%
     mutate(
-      VE = apply_lor(VE, lor_re),
+      VE = apply_lor(VE, offset_rzv$re),
       Tag = "Real-world, two doses after ZVL"
     ),
   d %>%
     mutate(
-      VE = apply_lor(VE, lor_re + lor_single),
+      VE = apply_lor(VE, offset_rzv$single + offset_rzv$re),
       Tag = "Real-world, single dose after ZVL"
     )
 ) %>% 
@@ -187,18 +205,12 @@ ve_rzv <- bind_rows(
   )
 
 
-g_rzv_gof <- pars_ve_rzv %>% 
-  filter(Yr <= 20) %>% 
-  group_by(Yr) %>% 
-  summarise(
-    M = mean(apply_lor(VE, - lor_rw)),
-    L = quantile(apply_lor(VE, - lor_rw), 0.025),
-    U = quantile(apply_lor(VE, - lor_rw), 0.975)
-  ) %>% 
+g_rzv_gof <- d_tr %>% 
   ggplot() +
   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
-  geom_line(aes(x = Yr, y = M)) +
-  geom_pointrange(data = dat_ve2, aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_line(aes(x = Yr, y = VE)) +
+  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
   scale_y_continuous("Vaccine efficacy, %", label = scales::percent) +
   scale_x_continuous("Year since vaccinated") +
   expand_limits(y = 0)
@@ -207,7 +219,8 @@ g_rzv_gof <- pars_ve_rzv %>%
 g_rzv_var <- ve_rzv %>% 
   ggplot() +
   geom_line(aes(x = Yr, y = VE, colour = Tag)) +
-  geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
   scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
   scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
   scale_colour_discrete("") +

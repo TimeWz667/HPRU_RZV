@@ -1,7 +1,7 @@
 
 compile_zvl <- function(n_sims) {
   pars_ve_zvl <- local({
-    load(here::here("pars", "pars_ve_zvl_rw_zlg.rdata"))
+    load(here::here("pars", "pars_ve_zvl_rw.rdata"))
     ve_zvl_age <- read_csv(here::here("pars", "pars_ve_zvl_agp.csv"))
 
     crossing(Age = 50:100, Key = 1:max(pars_ve_zvl$Key), Yr = 1:50) %>% 

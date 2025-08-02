@@ -29,7 +29,6 @@ save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rw.rdata"))
 pars_ve_zvl <- pars_ve_zvl %>% 
   crossing(Age = 50:100) %>% 
   filter(Age - Yr >= 50) %>% 
-  left_join(ve_zvl) %>% 
   left_join(offset_zvl$agp) %>% 
   rename(VE0 = VE) %>% 
   mutate(
@@ -152,7 +151,7 @@ pars_ve_rw <- pars_ve_tr %>%
     Variant = "RW",
   )
 
-pars_ve_rzv <- pars_ve_tr 
+pars_ve_rzv <- pars_ve_rw 
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_zig.rdata"))
 
 

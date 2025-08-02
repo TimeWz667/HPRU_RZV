@@ -11,6 +11,9 @@ dat <- read_xlsx(here::here("data", "processed_vaccine", "VE.xlsx"))
 
 
 dat %>% 
+  filter(Source == "Parikh 2023")
+
+dat %>% 
   filter(Source == "Izurieta 2021")
 
 
@@ -19,7 +22,7 @@ dat %>%
 
 
 offset_rzv <- list(
-  ve0 = 0.701,
+  ve0 = 0.792,
   single = find_lor(0.701, 0.569), # Izurieta HS 2021,
   re = find_lor(0.79, 0.75), # Mbinta JF 2022,
   ic = find_lor(0.705, 0.641),
