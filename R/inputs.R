@@ -189,8 +189,8 @@ load_inputs_proj <- function(pars) {
   load(here::here("pars", "pars_demo.rdata"))
   pars$Demography <- pars_demo$England
   
-  load(here::here("pars", "fitted_coverage.rdata"))
-  pars$Uptake <- pred1$pars
+  
+  pars$Uptake <- local({load(here::here("pars", "fitted_vac_uptake.rdata")); pars})
   
   return(pars)
 }

@@ -36,5 +36,5 @@ g_cov_cohort <- d %>%
 g_cov_yr
 g_cov_cohort
 
-ggsave(g_cov_yr, filename = here::here("outputs", "figs", "data", "g_cov_yr.png"), width = 7, height = 5.5)
-ggsave(g_cov_cohort, filename = here::here("outputs", "figs", "data", "g_cov_cohort.png"), width = 7, height = 5.5)
+ggsave(g_cov_yr, filename = here::here("docs", "figs", "inputs", "g_cov_yr.png"), width = 7, height = 5.5)
+ggsave(g_cov_cohort, filename = here::here("docs", "figs", "inputs", "g_cov_cohort.png"), width = 7, height = 5.5)

@@ -347,6 +347,7 @@ g_uptake_gof <- pred1$pred %>%
 
 
 
+
 g_uptake_gof
 
 

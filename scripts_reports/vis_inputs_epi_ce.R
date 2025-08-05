@@ -389,36 +389,67 @@ gs$g_vac_ve_rzv
 ## ZVL uptake
 
 load(here::here("data", "processed_vaccine", "coverage.rdata"))
-load(here::here("pars", "fitted_coverage.rdata"))
+# load(here::here("pars", "fitted_coverage.rdata"))
+load(here::here("pars", "fitted_vac_uptake.rdata"))
 
 
-d <- coverage %>% 
+dat <- coverage %>% 
   mutate(
-    Age = Age - 1,
-    Year = as.numeric(Year),
-    Cohort = Year - Age + 70
+    VacT = Age - 71,
+    Cohort = as.numeric(Year) - VacT
   ) %>% 
-  filter(Cohort >= 2014)
+  filter(Cohort >= 2014) %>% 
+  mutate(Cohort = as.character(Cohort))
+
+# 
+# gs$g_uptake_gof <- pred1$pred %>% 
+#   filter(Cohort == "2014") %>% 
+#   ggplot(aes(x = Age - 1)) +
+#   geom_ribbon(aes(ymin = Coverage_l, ymax = Coverage_u), alpha = 0.2) +
+#   geom_line(aes(y = Coverage)) +
+#   geom_point(data = d, aes(x = Age, y = value, colour = as.character(Cohort)), size = rel(2)) +
+#   geom_line(data = d, aes(x = Age, y = value, colour = as.character(Cohort))) +
+#   scale_y_continuous("Coverage", labels = scales::percent) +
+#   coord_cartesian(xlim = c(69.5, 79.5), ylim = c(0, 1), expand = FALSE) +
+#   scale_colour_discrete("Cohort at age 70") +
+#   scale_x_continuous("Age", breaks = seq(70, 80, 2)) +
+#   expand_limits(y = c(0, 1)) +
+#   labs(subtitle = "Vaccine uptake") +
+#   theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
+#     legend.background = element_blank(), legend.text = element_text(size = 14))
+# 
+# 
+# gs$g_uptake_gof
 
 
-gs$g_uptake_gof <- pred1$pred %>% 
-  filter(Cohort == "2014") %>% 
-  ggplot(aes(x = Age - 1)) +
-  geom_ribbon(aes(ymin = Coverage_l, ymax = Coverage_u), alpha = 0.2) +
-  geom_line(aes(y = Coverage)) +
-  geom_point(data = d, aes(x = Age, y = value, colour = as.character(Cohort)), size = rel(2)) +
-  geom_line(data = d, aes(x = Age, y = value, colour = as.character(Cohort))) +
-  scale_y_continuous("Coverage", labels = scales::percent) +
-  coord_cartesian(xlim = c(69.5, 79.5), ylim = c(0, 1), expand = FALSE) +
-  scale_colour_discrete("Cohort at age 70") +
-  scale_x_continuous("Age", breaks = seq(70, 80, 2)) +
-  expand_limits(y = c(0, 1)) +
-  labs(subtitle = "Vaccine uptake") +
+gs$g_uptake_pred <- pred %>% 
+  ggplot() +
+  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.99, .95, .8, .5), color = "#08519C", alpha = 0.3) +
+  scale_fill_brewer("Interval") +
+  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
+  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
+  scale_y_continuous("Coverage, %", label = scales::percent) +
+  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
+  scale_colour_discrete("Cohort (year of 70 YOA)") +
+  expand_limits(y = 0:1) +
   theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
-    legend.background = element_blank(), legend.text = element_text(size = 14))
+        legend.background = element_blank(), legend.text = element_text(size = 14))
 
 
-gs$g_uptake_gof
+gs$g_uptake_fitted <- fitted %>% 
+  ggplot() +
+  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.99, .95, .8, .5), color = "#08519C", alpha = 0.3) +
+  scale_fill_brewer("Interval") +
+  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
+  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
+  scale_y_continuous("Coverage, %", label = scales::percent) +
+  scale_colour_discrete("Cohort (year of 70 YOA)") +
+  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
+  expand_limits(y = 0:1) +
+  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
+        legend.background = element_blank(), legend.text = element_text(size = 14))
 
 
 
@@ -470,7 +501,7 @@ gs$g_base <- ggarrange(
 gs$g_vac <- ggarrange(
   gs$g_vac_ve_zvl,
   gs$g_vac_ve_rzv,
-  gs$g_uptake_gof,
+  gs$g_uptake_pred,
   nrow = 3,
   ncol = 1,
   align = "hv",
