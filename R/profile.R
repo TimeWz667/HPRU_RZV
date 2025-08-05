@@ -2,7 +2,8 @@
 
 sim_profile <- function(pars_proj) {
   pop <- pars_proj$Demography$N
-  uptake <- pars_proj$Uptake
+  uptake <- pars_proj$Uptake %>% select(p_initial, p_catchup = p_catch) %>% 
+    summarise_all(mean) %>% as.list()
   
   
   sim_cov <- local({
@@ -207,7 +208,8 @@ exec_programme <- function(pars_proj, profile, stats_uv, stats_re) {
   
   
   
-  uptake <- pars_proj$Uptake
+  uptake <- pars_proj$Uptake %>% select(p_initial, p_catchup = p_catch) %>% 
+    summarise_all(mean) %>% as.list()
   
   ss$prog_cont_1d <- ce0 %>% 
     mutate(

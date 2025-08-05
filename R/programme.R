@@ -1,15 +1,13 @@
 
-strategy_null <- function(df, p_uptake, year) {
+strategy_null <- function(df, year) {
   require(tidyverse)
-  return(df %>% mutate(eli = NA, p_uptake = 0))
+  return(df %>% mutate(eli = NA, tp_uptake = 0))
 }
 
 
-strategy_zvl <- function(df, p_uptake, year) {
+strategy_zvl <- function(df, year) {
   require(tidyverse)
-  p_ini <- p_uptake$p_initial
-  p_cat <- p_uptake$p_catchup
-  
+
   df <- df %>% 
     mutate(
       eli = case_when(
@@ -18,10 +16,10 @@ strategy_zvl <- function(df, p_uptake, year) {
         Age < 80 ~ "ZVL",
         T ~ NA
       ),
-      p_uptake = case_when(
-        is.na(eli) ~ 0,
-        Age == 70 ~ p_ini,
-        T ~ p_cat
+      tp_uptake = case_when(
+        is.na(eli) ~ NA,
+        Age == 70 ~ "Ini",
+        T ~ "Cat"
       )
     )
   
@@ -29,11 +27,9 @@ strategy_zvl <- function(df, p_uptake, year) {
 }
 
 
-strategy_changeonly <- function(df, p_uptake, year) {
+strategy_changeonly <- function(df, year) {
   require(tidyverse)
-  p_ini <- p_uptake$p_initial
-  p_cat <- p_uptake$p_catchup
-  
+
   df <- df %>% 
     mutate(
       eli = case_when(
@@ -42,10 +38,10 @@ strategy_changeonly <- function(df, p_uptake, year) {
         Age < 80 ~ ifelse(year < 2023, "ZVL", "RZV_2d"),
         T ~ NA
       ),
-      p_uptake = case_when(
-        is.na(eli) ~ 0,
-        Age == 70 ~ p_ini,
-        T ~ p_cat
+      tp_uptake = case_when(
+        is.na(eli) ~ NA,
+        Age == 70 ~ "Ini",
+        T ~ "Cat"
       )
     )
   
@@ -53,10 +49,8 @@ strategy_changeonly <- function(df, p_uptake, year) {
 }
 
 
-strategy_scheduled <- function(df, p_uptake, year) {
+strategy_scheduled <- function(df, year) {
   require(tidyverse)
-  p_ini <- p_uptake$p_initial
-  p_cat <- p_uptake$p_catchup
   
   if (year < 2023) {
     df <- df %>% 
@@ -67,10 +61,10 @@ strategy_scheduled <- function(df, p_uptake, year) {
           Age < 80 ~ "ZVL",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age == 70 ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age == 70 ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else if (year < 2028) {
@@ -84,10 +78,10 @@ strategy_scheduled <- function(df, p_uptake, year) {
           Age < (65 + year - 2023) ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age %in% c(65, 70) ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age %in% c(65, 70) ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else if (year < 2033) {
@@ -101,10 +95,10 @@ strategy_scheduled <- function(df, p_uptake, year) {
           Age < (60 + year - 2028) ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age %in% c(60, 65) ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age %in% c(60, 65) ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else {
@@ -116,23 +110,21 @@ strategy_scheduled <- function(df, p_uptake, year) {
           Age < 80 ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age == 60 ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age == 60 ~ "Ini",
+          T ~ "Cat"
         )
       )
   }
 }
 
 
-strategy_scheduled65 <- function(df, p_uptake, year) strategy_scheduled(df, p_uptake, min(year, 2027))
+strategy_scheduled65 <- function(df, year) strategy_scheduled(df, min(year, 2027))
 
 
-strategy_scheduled_old <- function(df, p_uptake, year, year0 = 2024, vaccine_old = "1d", cap_age = 85) {
+strategy_scheduled_old <- function(df, year, year0 = 2024, vaccine_old = "1d", cap_age = 85) {
   require(tidyverse)
-  p_ini <- p_uptake$p_initial
-  p_cat <- p_uptake$p_catchup
   
   if (vaccine_old == "1d") {
     vo_pri <- "RZV_1d"
@@ -155,10 +147,10 @@ strategy_scheduled_old <- function(df, p_uptake, year, year0 = 2024, vaccine_old
           Age < 80 ~ "ZVL",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age == 70 ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age == 70 ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else if (year < 2028) {
@@ -174,10 +166,10 @@ strategy_scheduled_old <- function(df, p_uptake, year, year0 = 2024, vaccine_old
           Age < (65 + year - 2023) ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age %in% c(65, 70, 80) ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age %in% c(65, 70, 80) ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else if (year < 2033) {
@@ -193,10 +185,10 @@ strategy_scheduled_old <- function(df, p_uptake, year, year0 = 2024, vaccine_old
           Age < (60 + year - 2028) ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age %in% c(60, 65, 80) ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age %in% c(60, 65, 80) ~ "Ini",
+          T ~ "Cat"
         )
       )
   } else {
@@ -211,21 +203,21 @@ strategy_scheduled_old <- function(df, p_uptake, year, year0 = 2024, vaccine_old
           Age < 80 ~ "RZV_2d",
           T ~ NA
         ),
-        p_uptake = case_when(
-          is.na(eli) ~ 0,
-          Age %in% c(60, 80) ~ p_ini,
-          T ~ p_cat
+        tp_uptake = case_when(
+          is.na(eli) ~ NA,
+          Age %in% c(60, 80) ~ "Ini",
+          T ~ "Cat"
         )
       )
   }
 }
 
 
-strategy_scheduled_1d85 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "1d", cap_age = 85) 
-strategy_scheduled_1d90 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "1d", cap_age = 90) 
-strategy_scheduled_1d95 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "1d", cap_age = 95)
+strategy_scheduled_1d85 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "1d", cap_age = 85) 
+strategy_scheduled_1d90 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "1d", cap_age = 90) 
+strategy_scheduled_1d95 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "1d", cap_age = 95)
 
-strategy_scheduled_2d85 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "2d", cap_age = 85) 
-strategy_scheduled_2d90 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "2d", cap_age = 90) 
-strategy_scheduled_2d95 <- function(df, p_uptake, year) strategy_scheduled_old(df, p_uptake, year, year0 = 2024, vaccine_old = "2d", cap_age = 95) 
+strategy_scheduled_2d85 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "2d", cap_age = 85) 
+strategy_scheduled_2d90 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "2d", cap_age = 90) 
+strategy_scheduled_2d95 <- function(df, year) strategy_scheduled_old(df, year, year0 = 2024, vaccine_old = "2d", cap_age = 95) 
 
