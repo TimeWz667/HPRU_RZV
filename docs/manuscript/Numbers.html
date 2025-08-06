@@ -362,15 +362,15 @@ display: none;
 <pre class="r"><code>tab_ce_uv %&gt;% 
   filter(Arm == &quot;RZV_2d&quot;) %&gt;% 
   filter(Index == &quot;Thres&quot;) %&gt;% 
-  filter(Age0 &gt;= 60 &amp; Age0 &lt;= 80) %&gt;% 
+  filter(Age0 &gt;= 60 &amp; Age0 &lt; 80) %&gt;% 
   filter(Age0 %in% range(Age0) | M == max(M)) %&gt;% 
   select(Scenario:Index, M)</code></pre>
 <pre><code>## # A tibble: 3 × 7
 ##   Scenario  Age0 Arm    Year0    N0 Index     M
 ##   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-## 1 Vac_60      60 RZV_2d  2024     1 Thres  72.3
-## 2 Vac_74      74 RZV_2d  2024     1 Thres  92.8
-## 3 Vac_80      80 RZV_2d  2024     1 Thres  87.4</code></pre>
+## 1 Vac_60      60 RZV_2d  2024     1 Thres 114. 
+## 2 Vac_67      67 RZV_2d  2024     1 Thres 118. 
+## 3 Vac_79      79 RZV_2d  2024     1 Thres  99.9</code></pre>
 <pre class="r"><code>tab_ce_uv %&gt;% 
   filter(Arm == &quot;RZV_1d&quot;) %&gt;% 
   filter(Index == &quot;Thres&quot;) %&gt;% 
@@ -379,26 +379,26 @@ display: none;
 <pre><code>## # A tibble: 20 × 7
 ##    Scenario  Age0 Arm    Year0    N0 Index     M
 ##    &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-##  1 Vac_80      80 RZV_1d  2024     1 Thres 143. 
-##  2 Vac_81      81 RZV_1d  2024     1 Thres 140. 
-##  3 Vac_82      82 RZV_1d  2024     1 Thres 137. 
-##  4 Vac_83      83 RZV_1d  2024     1 Thres 133. 
-##  5 Vac_84      84 RZV_1d  2024     1 Thres 129. 
-##  6 Vac_85      85 RZV_1d  2024     1 Thres 125. 
-##  7 Vac_86      86 RZV_1d  2024     1 Thres 120. 
-##  8 Vac_87      87 RZV_1d  2024     1 Thres 116. 
-##  9 Vac_88      88 RZV_1d  2024     1 Thres 110. 
-## 10 Vac_89      89 RZV_1d  2024     1 Thres 105. 
-## 11 Vac_90      90 RZV_1d  2024     1 Thres  99.4
-## 12 Vac_91      91 RZV_1d  2024     1 Thres  94.0
-## 13 Vac_92      92 RZV_1d  2024     1 Thres  87.8
-## 14 Vac_93      93 RZV_1d  2024     1 Thres  82.2
-## 15 Vac_94      94 RZV_1d  2024     1 Thres  76.2
+##  1 Vac_80      80 RZV_1d  2024     1 Thres 161. 
+##  2 Vac_81      81 RZV_1d  2024     1 Thres 156. 
+##  3 Vac_82      82 RZV_1d  2024     1 Thres 151. 
+##  4 Vac_83      83 RZV_1d  2024     1 Thres 145. 
+##  5 Vac_84      84 RZV_1d  2024     1 Thres 139. 
+##  6 Vac_85      85 RZV_1d  2024     1 Thres 133. 
+##  7 Vac_86      86 RZV_1d  2024     1 Thres 127. 
+##  8 Vac_87      87 RZV_1d  2024     1 Thres 122. 
+##  9 Vac_88      88 RZV_1d  2024     1 Thres 115. 
+## 10 Vac_89      89 RZV_1d  2024     1 Thres 109. 
+## 11 Vac_90      90 RZV_1d  2024     1 Thres 102. 
+## 12 Vac_91      91 RZV_1d  2024     1 Thres  96.0
+## 13 Vac_92      92 RZV_1d  2024     1 Thres  89.5
+## 14 Vac_93      93 RZV_1d  2024     1 Thres  83.0
+## 15 Vac_94      94 RZV_1d  2024     1 Thres  76.5
 ## 16 Vac_95      95 RZV_1d  2024     1 Thres  69.5
-## 17 Vac_96      96 RZV_1d  2024     1 Thres  61.6
+## 17 Vac_96      96 RZV_1d  2024     1 Thres  61.7
 ## 18 Vac_97      97 RZV_1d  2024     1 Thres  52.5
-## 19 Vac_98      98 RZV_1d  2024     1 Thres  40.6
-## 20 Vac_99      99 RZV_1d  2024     1 Thres  24.3</code></pre>
+## 19 Vac_98      98 RZV_1d  2024     1 Thres  40.8
+## 20 Vac_99      99 RZV_1d  2024     1 Thres  24.5</code></pre>
 <pre class="r"><code>tab_ce_uv %&gt;% 
   filter(Arm == &quot;RZV_2d&quot;) %&gt;% 
   filter(Index == &quot;Thres&quot;) %&gt;% 
@@ -407,9 +407,9 @@ display: none;
 <pre><code>## # A tibble: 4 × 7
 ##   Scenario  Age0 Arm    Year0    N0 Index     M
 ##   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-## 1 Vac_80      80 RZV_2d  2024     1 Thres  87.4
-## 2 Vac_85      85 RZV_2d  2024     1 Thres  75.1
-## 3 Vac_90      90 RZV_2d  2024     1 Thres  58.9
+## 1 Vac_80      80 RZV_2d  2024     1 Thres  96.9
+## 2 Vac_85      85 RZV_2d  2024     1 Thres  79.5
+## 3 Vac_90      90 RZV_2d  2024     1 Thres  60.1
 ## 4 Vac_95      95 RZV_2d  2024     1 Thres  40.4</code></pre>
 <pre class="r"><code>tab_ce_uv %&gt;% 
   filter(Arm == &quot;RZV_1d&quot;) %&gt;% 
@@ -419,9 +419,9 @@ display: none;
 <pre><code>## # A tibble: 4 × 7
 ##   Scenario  Age0 Arm    Year0    N0 Index     M
 ##   &lt;chr&gt;    &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-## 1 Vac_80      80 RZV_1d  2024     1 Thres 143. 
-## 2 Vac_85      85 RZV_1d  2024     1 Thres 125. 
-## 3 Vac_90      90 RZV_1d  2024     1 Thres  99.4
+## 1 Vac_80      80 RZV_1d  2024     1 Thres 161. 
+## 2 Vac_85      85 RZV_1d  2024     1 Thres 133. 
+## 3 Vac_90      90 RZV_1d  2024     1 Thres 102. 
 ## 4 Vac_95      95 RZV_1d  2024     1 Thres  69.5</code></pre>
 <pre class="r"><code>tab_ce_re %&gt;% 
   filter(Index == &quot;Thres&quot;) %&gt;% 
@@ -433,18 +433,18 @@ display: none;
 <pre><code>## # A tibble: 6 × 8
 ##   Scenario   Age0  Age1 Arm      Year0    N0 Index     M
 ##   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;    &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt; &lt;dbl&gt;
-## 1 Second_85    70    85 ReRZV_1d  2024 0.625 Thres  95.7
-## 2 Second_90    70    90 ReRZV_1d  2024 0.387 Thres  75.6
-## 3 Second_95    70    95 ReRZV_1d  2024 0.163 Thres  49.1
-## 4 Second_85    70    85 ReRZV_2d  2024 0.625 Thres  60.2
-## 5 Second_90    70    90 ReRZV_2d  2024 0.387 Thres  46.3
-## 6 Second_95    70    95 ReRZV_2d  2024 0.163 Thres  29.5</code></pre>
+## 1 Second_85    70    85 ReRZV_1d  2024 0.625 Thres 101. 
+## 2 Second_90    70    90 ReRZV_1d  2024 0.387 Thres  77.0
+## 3 Second_95    70    95 ReRZV_1d  2024 0.163 Thres  48.7
+## 4 Second_85    70    85 ReRZV_2d  2024 0.625 Thres  63.2
+## 5 Second_90    70    90 ReRZV_2d  2024 0.387 Thres  47.0
+## 6 Second_95    70    95 ReRZV_2d  2024 0.163 Thres  29.3</code></pre>
 </div>
 <div id="sens" class="section level2">
 <h2>Sens</h2>
 <pre class="r"><code>sens_10p &lt;- read_csv(here::here(&quot;docs&quot;, &quot;tabs&quot;, scenario, &quot;sens_ce1d.csv&quot;))</code></pre>
 <pre><code>## Rows: 500 Columns: 5
-## ── Column specification ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (1): Pars
 ## dbl (4): Direction, Thres, Age0, Thres0
@@ -458,16 +458,16 @@ display: none;
 <pre><code>## # A tibble: 10 × 5
 ##    Pars        Direction  Age0 Thres   Diff
 ##    &lt;chr&gt;           &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
-##  1 C_Hosp            0.1    80  88.0  0.641
-##  2 C_Hosp           -0.1    80  86.7 -0.659
-##  3 C_GP_NonPHN       0.1    80  87.6  0.274
-##  4 C_GP_NonPHN      -0.1    80  87.1 -0.287
-##  5 C_GP_PHN          0.1    80  87.5  0.129
-##  6 C_GP_PHN         -0.1    80  87.2 -0.133
-##  7 Q_HZ              0.1    80  94.8  7.44 
-##  8 Q_HZ             -0.1    80  79.9 -7.46 
-##  9 Q_Life            0.1    80  87.6  0.220
-## 10 Q_Life           -0.1    80  87.1 -0.228</code></pre>
+##  1 C_Hosp            0.1    80  97.7  0.790
+##  2 C_Hosp           -0.1    80  96.2 -0.737
+##  3 C_GP_NonPHN       0.1    80  97.2  0.314
+##  4 C_GP_NonPHN      -0.1    80  96.6 -0.310
+##  5 C_GP_PHN          0.1    80  97.0  0.140
+##  6 C_GP_PHN         -0.1    80  96.8 -0.138
+##  7 Q_HZ              0.1    80 105.   8.26 
+##  8 Q_HZ             -0.1    80  88.7 -8.20 
+##  9 Q_Life            0.1    80  97.2  0.270
+## 10 Q_Life           -0.1    80  96.6 -0.273</code></pre>
 </div>
 
 

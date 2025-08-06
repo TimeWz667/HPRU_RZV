@@ -387,101 +387,9 @@ gs$g_vac_ve_rzv <- pars_ve_rzv %>%
 gs$g_vac_ve_rzv 
 
 
-## ZVL uptake
-
-load(here::here("data", "processed_vaccine", "coverage.rdata"))
-# load(here::here("pars", "fitted_coverage.rdata"))
-load(here::here("pars", "fitted_vac_uptake.rdata"))
-
-
-dat <- coverage %>% 
-  mutate(
-    VacT = Age - 71,
-    Cohort = as.numeric(Year) - VacT
-  ) %>% 
-  filter(Cohort >= 2014) %>% 
-  mutate(Cohort = as.character(Cohort))
-
-# 
-# gs$g_uptake_gof <- pred1$pred %>% 
-#   filter(Cohort == "2014") %>% 
-#   ggplot(aes(x = Age - 1)) +
-#   geom_ribbon(aes(ymin = Coverage_l, ymax = Coverage_u), alpha = 0.2) +
-#   geom_line(aes(y = Coverage)) +
-#   geom_point(data = d, aes(x = Age, y = value, colour = as.character(Cohort)), size = rel(2)) +
-#   geom_line(data = d, aes(x = Age, y = value, colour = as.character(Cohort))) +
-#   scale_y_continuous("Coverage", labels = scales::percent) +
-#   coord_cartesian(xlim = c(69.5, 79.5), ylim = c(0, 1), expand = FALSE) +
-#   scale_colour_discrete("Cohort at age 70") +
-#   scale_x_continuous("Age", breaks = seq(70, 80, 2)) +
-#   expand_limits(y = c(0, 1)) +
-#   labs(subtitle = "Vaccine uptake") +
-#   theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
-#     legend.background = element_blank(), legend.text = element_text(size = 14))
-# 
-# 
-# gs$g_uptake_gof
-
-
-gs$g_uptake_pred <- pred %>% 
-  ggplot() +
-  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.99, .95, .8, .5), color = "#08519C", alpha = 0.3) +
-  scale_fill_brewer("Interval") +
-  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
-  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
-  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
-  scale_y_continuous("Coverage, %", label = scales::percent) +
-  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
-  scale_colour_discrete("Cohort (year of 70 YOA)") +
-  expand_limits(y = 0:1) +
-  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
-        legend.background = element_blank(), legend.text = element_text(size = 14))
-
-
-gs$g_uptake_fitted <- fitted %>% 
-  ggplot() +
-  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.99, .95, .8, .5), color = "#08519C", alpha = 0.3) +
-  scale_fill_brewer("Interval") +
-  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
-  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
-  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
-  scale_y_continuous("Coverage, %", label = scales::percent) +
-  scale_colour_discrete("Cohort (year of 70 YOA)") +
-  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
-  expand_limits(y = 0:1) +
-  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
-        legend.background = element_blank(), legend.text = element_text(size = 14))
-
-
 
 
 #### Binding / output -----
-
-gs$g_bind <- ggarrange(
-  ggarrange(
-    gs$g_r_hz,
-    gs$g_r_hz_gp,
-    gs$g_p_phn,
-    gs$g_p_mor,
-    gs$g_cost_gp,
-    gs$g_cost_gpphn,
-    gs$g_cost_hosp, 
-    gs$g_ql_ph,
-    nrow = 3,
-    ncol = 3,
-    common.legend = T, legend = "bottom"
-  ),
-  ggarrange(
-    gs$g_vac_ve_zvl,
-    gs$g_vac_ve_rzv,
-    gs$g_uptake_gof,
-    nrow = 1,
-    ncol = 3
-  ),
-  nrow = 2,
-  heights = c(4, 1) / 5
-)
-  
 
 gs$g_base <- ggarrange(
   gs$g_r_hz,
@@ -496,16 +404,6 @@ gs$g_base <- ggarrange(
   nrow = 3,
   ncol = 3,
   common.legend = T, legend = "bottom", align = "hv",
-  labels = LETTERS, font.label = list(size = 16)
-)
-
-gs$g_vac <- ggarrange(
-  gs$g_vac_ve_zvl,
-  gs$g_vac_ve_rzv,
-  gs$g_uptake_pred,
-  nrow = 3,
-  ncol = 1,
-  align = "hv",
   labels = LETTERS, font.label = list(size = 16)
 )
 
@@ -530,10 +428,9 @@ gs$g_cost <- ggarrange(
 
 
 ggsave(gs$g_epi, filename = here::here("docs", "figs", "inputs", "g_epi.png"), width = 5.5, height = 10)
-ggsave(gs$g_vac, filename = here::here("docs", "figs", "inputs", "g_vac.png"), width = 7.5, height = 14)
 ggsave(gs$g_base, filename = here::here("docs", "figs", "inputs", "g_base.png"), width = 15, height = 12)
 
 ggsave(gs$g_demo, filename = here::here("docs", "figs", "inputs", "g_demo.png"), width = 7.5, height = 10)
 ggsave(gs$g_cost, filename = here::here("docs", "figs", "inputs", "g_cost.png"), width = 5.5, height = 10)
-ggsave(gs$g_bind, filename = here::here("docs", "figs", "inputs", "g_bind.png"), width = 15, height = 20)
+# ggsave(gs$g_bind, filename = here::here("docs", "figs", "inputs", "g_bind.png"), width = 15, height = 20)
 

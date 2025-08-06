@@ -228,6 +228,20 @@ g_rzv_var <- ve_rzv %>%
   theme(legend.position = c(0, 0), legend.justification = c(-0.1, -0.1))
 
 
+g_vac_ve_rzv <- d_tr %>% 
+  ggplot() +
+  geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
+  geom_line(aes(x = Yr, y = VE)) +
+  geom_line(data = ve_rzv, aes(x = Yr, y = VE, colour = Tag)) +
+  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
+  scale_x_continuous("Year since vaccinated") +
+  scale_colour_discrete("") +
+  expand_limits(y = 0) +
+  theme(legend.position = c(0, 0), legend.justification = c(-0.1, -0.1)) + 
+  labs(subtitle = "RZV vaccine efficacy/effectiveness")
+
 
 g_rzv <- ggpubr::ggarrange(
   g_rzv_gof + labs(subtitle = "(A) Goodness of fit"), 
@@ -316,42 +330,90 @@ g_rzv
 
 
 ## ZVL uptake
+
 load(here::here("data", "processed_vaccine", "coverage.rdata"))
-load(here::here("pars", "fitted_coverage.rdata"))
+load(here::here("pars", "fitted_vac_uptake.rdata"))
 
 
-d <- coverage %>% 
+dat <- coverage %>% 
   mutate(
-    Age = Age - 1,
-    Year = as.numeric(Year),
-    Cohort = Year - Age + 70
+    VacT = Age - 71,
+    Cohort = as.numeric(Year) - VacT
   ) %>% 
-  filter(Cohort >= 2014)
+  filter(Cohort >= 2014) %>% 
+  mutate(Cohort = as.character(Cohort))
 
 
-
-g_uptake_gof <- pred1$pred %>% 
-  filter(Cohort == "2014") %>% 
-  ggplot(aes(x = Age - 1)) +
-  geom_ribbon(aes(ymin = Coverage_l, ymax = Coverage_u), alpha = 0.2) +
-  geom_line(aes(y = Coverage)) +
-  geom_point(data = d, aes(x = Age, y = value, colour = as.character(Cohort)), size = rel(2)) +
-  geom_line(data = d, aes(x = Age, y = value, colour = as.character(Cohort))) +
-  scale_y_continuous("Coverage, %", labels = scales::percent) +
+g_uptake_pred <- pred %>% 
+  ggplot() +
+  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.3) +
+  scale_fill_brewer("Interval") +
+  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
+  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
+  scale_y_continuous("Coverage, %", label = scales::percent) +
+  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
   scale_colour_discrete("Cohort (year of 70 YOA)") +
-  scale_x_continuous("Age", breaks = seq(70, 80, 2)) +
-  expand_limits(y = c(0, 1)) +
-  theme(legend.position = c(1, 0), legend.justification = c(1.1, -0.1))
+  expand_limits(y = 0:1) +
+  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
+        legend.background = element_blank(), legend.text = element_text(size = 14))
 
 
-g_uptake_gof
+g_uptake_fitted <- fitted %>% 
+  ggplot() +
+  stat_lineribbon(aes(x = VacT, y = Coverage), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.3) +
+  scale_fill_brewer("Interval") +
+  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
+  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
+  scale_y_continuous("Coverage, %", label = scales::percent) +
+  scale_colour_discrete("Cohort (year of 70 YOA)") +
+  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
+  expand_limits(y = 0:1) +
+  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
+        legend.background = element_blank(), legend.text = element_text(size = 14))
+
+
+g_uptake_gof <- pred %>% 
+  group_by(VacT) %>% 
+  summarise(
+    M = median(Coverage),
+    L = quantile(Coverage, 0.025),
+    U = quantile(Coverage, 0.975)
+  ) %>% 
+  ggplot() +
+  geom_ribbon(aes(x = VacT, ymin = L, ymax = U), alpha = 0.2) +
+  geom_line(aes(x = VacT, y = M)) +
+  #geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  geom_point(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort)), size = rel(2)) +
+  geom_line(data = dat, aes(x = VacT, y = value, colour = as.character(Cohort))) +
+  scale_y_continuous("Coverage, %", label = scales::percent) +
+  scale_x_continuous("Years since vaccinated", breaks = 0:9) +
+  scale_colour_discrete("Cohort (year of 70 YOA)") +
+  expand_limits(y = 0:1) +
+  theme(legend.position = c(1, -0.03), legend.justification = c(1.1, -0.1),
+        legend.background = element_blank()) + 
+  labs(subtitle = "ZVL coverage, 2018-2022")
+
+
+g_vac <- ggarrange(
+  g_zvl_gof + labs(subtitle = "ZVL vaccine effectiveness"),
+  g_vac_ve_rzv,
+  g_uptake_gof,
+  nrow = 3,
+  ncol = 1,
+  align = "hv",
+  labels = LETTERS, font.label = list(size = 16)
+)
+
+g_vac
+
 
 
 dir.create("docs/figs/inputs", showWarnings = F)
 ggsave(g_zvl, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_zvl.png"), width = 12, height = 6)
 ggsave(g_rzv, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_rzv.png"), width = 12, height = 6)
-ggsave(g_alt, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_alt.png"), width = 10, height = 9)
+# ggsave(g_alt, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_alt.png"), width = 10, height = 9)
 ggsave(g_uptake_gof, filename = here::here("docs", "figs", "inputs", "g_vaccine_uptake.png"), width = 6, height = 4.5)
-#ggsave(g_vax_comp, filename = here::here("docs", "figs", "g_vaccine_comparison.png"), width = 7, height = 3)
-
+ggsave(g_vac, filename = here::here("docs", "figs", "inputs", "g_vac.png"), width = 7.5, height = 14)
 
