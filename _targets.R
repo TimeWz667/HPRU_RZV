@@ -57,9 +57,9 @@ list(
   tar_target(stats_re_g, summarise_cohort_re(yss_re_g), pattern = map(yss_re_g)),
 
   ## Long-term projection
-  # tar_target(yss_proj, exec_projection(pars_proj), pattern = map(pars_proj)),
-  # tar_target(stats_proj, summarise_proj(yss_proj), pattern = map(yss_proj)),
-  # tar_target(gs_proj, vis_proj(stats_proj), pattern = map(stats_proj)),
+  tar_target(yss_proj, exec_projection(pars_proj, n_sims = 200), pattern = map(pars_proj)),
+  tar_target(stats_proj, summarise_proj(yss_proj), pattern = map(yss_proj)),
+  tar_target(gs_proj, vis_proj(stats_proj), pattern = map(stats_proj)),
   
   ## Programme-based measures
   tar_target(profile, sim_profile(pars_proj), pattern = map(pars_proj)),
@@ -68,11 +68,11 @@ list(
   ## Output
   tar_target(tabs_uv, save_tabs(stats_uv, folder = paste0(vtype, "_", dis)), pattern = map(stats_uv, cross(vtype, dis))),
   tar_target(tabs_re, save_tabs(stats_re, folder = paste0(vtype, "_", dis)), pattern = map(stats_re, cross(vtype, dis))),
-  # tar_target(tabs_proj, save_tabs(stats_proj, folder = "proj", prefix = paste0("tab_", vtype)), pattern = map(stats_proj, vtype)),
+  tar_target(tabs_proj, save_tabs(stats_proj, folder = "proj", prefix = paste0("tab_", vtype)), pattern = map(stats_proj, vtype)),
   tar_target(tabs_prog, save_tabs(stats_prog, folder = "prog", prefix = paste0("tab_", vtype)), pattern = map(stats_prog, vtype)),
 
   tar_target(figs_thres, save_fig_thres(gs_thres, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(gs_thres, cross(vtype, dis))),
-  # tar_target(figs_proj, save_fig_proj(gs_proj, folder = "proj", prefix = vtype, ext = ".png"), pattern = map(gs_proj, vtype)),
+  tar_target(figs_proj, save_fig_proj(gs_proj, folder = "proj", prefix = vtype, ext = ".png"), pattern = map(gs_proj, vtype)),
 
   ## Sensitivity analyses
   tar_target(f_rzv_zig, here::here("pars", "pars_ve_rzv_rw_zig.rdata"), format = "file"),

@@ -4,8 +4,8 @@ model_proj <- list()
 class(model_proj) <- "model_proj"
 
 
-model_proj$uptaking <- function(df, yr, strategy, pars_uptake) {
-  df <- df %>% strategy(pars_uptake, yr)
+model_proj$uptaking <- function(df, yr, strategy) {
+  df <- df %>% strategy(yr)
   if ((df %>% filter(!is.na(eli)) %>% nrow()) <= 0) {
     return(df)
   }
@@ -13,6 +13,11 @@ model_proj$uptaking <- function(df, yr, strategy, pars_uptake) {
     df %>% filter(is.na(eli)),
     df %>% filter(!is.na(eli)) %>% 
       mutate(
+        p_uptake = case_when(
+          tp_uptake == "Cat" ~ p_catch,
+          tp_uptake == "Ini" ~ p_initial,
+          T ~ 0
+        ),
         Prop_n = Prop * (1 - p_uptake), 
         Prop_v = Prop * p_uptake
       ) %>% 
@@ -28,7 +33,7 @@ model_proj$uptaking <- function(df, yr, strategy, pars_uptake) {
       ) %>% 
       select(-c(name, value))
   ) %>% 
-    select(-c(eli, p_uptake)) %>% 
+    select(-c(eli, p_uptake, tp_uptake)) %>% 
     arrange(Year, Age)
   
   return(df)
@@ -36,6 +41,15 @@ model_proj$uptaking <- function(df, yr, strategy, pars_uptake) {
 
 
 model_proj$ageing <- function(df, yr, age0, age1) {
+  ks <- df %>% pull(Key) %>% unique()
+  
+  new_in <- df %>% filter(Age == age0) %>% 
+    group_by(Key) %>%
+    filter(row_number()==1) %>% 
+    mutate(Year = yr, Vaccine = "None", TimeVac = -1, Prop = 1) %>% 
+    ungroup()
+  
+  
   df <- df %>% 
     mutate(
       Age = Age + 1,
@@ -43,48 +57,22 @@ model_proj$ageing <- function(df, yr, age0, age1) {
       Year = yr
     ) %>% 
     filter(Age <= age1) %>%       
-    bind_rows(
-      tibble(Year = yr, Age = age0, Vaccine = "None", TimeVac = -1, Prop = 1)
-    ) %>% 
+    bind_rows(new_in) %>% 
     arrange(Age)
   
   return(df)
 }
 
 
-a_projection <- function(pars, strategy, year0 = 2013, year1 = 2050, age0 = 0, age1 = 100) {
+a_projection <- function(pars, strategy, year0 = 2013, year1 = 2050, age0 = 60, age1 = 100, n_sims = 5000) {
   require(tidyverse)
 
   # pars <- tar_read(pars_proj)
-  # names(pars) <- gsub("pars_proj_c334c586f7cb2b6d_", "", names(pars))
-  # 
+  # prefix <- gsub("Year0", "", names(pars)[1])
+  # names(pars) <- gsub(prefix, "", names(pars))
+
   p_uptake <- pars$Uptake
   p_demo <- pars$Demography
-  
-  population <- with(model_proj, {
-    yr <- year0
-    pop <- tibble(Year = yr, Age = age0:age1, Vaccine = "None", TimeVac = -1, Prop = 1) 
-    pop <- pop %>% uptaking(yr = yr, strategy = strategy, pars_uptake = p_uptake)
-    
-    collector <- pop
-    
-    while (yr < year1) {
-      yr <- yr + 1
-      pop <- pop %>% 
-        ageing(yr, age0, age1) %>% 
-        uptaking(yr = yr, strategy = strategy, pars_uptake = p_uptake)
-      collector <- collector %>% bind_rows(pop)
-      # print(nrow(collector))
-    }
-  
-    collector
-  }) %>% 
-  left_join(p_demo$N, by = c("Year", "Age")) %>%
-  mutate(
-    N = N * Prop
-  ) %>% 
-  select(-Prop)
-    
   
   ves_rzv <- bind_rows(
     pars$VE_RZV_2d,
@@ -95,37 +83,92 @@ a_projection <- function(pars, strategy, year0 = 2013, year1 = 2050, age0 = 0, a
   
   ves_zvl <- pars$VE_ZVL
   
-#  population <- population %>% crossing(Key = 1:100)
-  population <- population %>% crossing(Key = 1:pars$N_Sims)
   
-  vaccinated <- bind_rows(
-    population %>% 
-      filter(Vaccine == "ZVL") %>% 
-      left_join(ves_zvl, by = c("Key", "Age", "Vaccine", "TimeVac")),
-    population %>% 
-      filter(Vaccine == "None") %>% 
-      mutate(Protection = 0),
-    population %>% 
-      filter(!(Vaccine %in% c("ZVL", "None"))) %>% 
-      left_join(ves_rzv, by = c("Key", "Vaccine", "TimeVac"))
-  ) %>% 
-    mutate(
-      N_Uptake_ZVL = ifelse((TimeVac == 1) * (Vaccine == "ZVL"), N, 0),
-      N_Uptake_RZV = ifelse((TimeVac == 1) * endsWith(Vaccine, "RZV_1d"), N, 0) +
-                     ifelse((TimeVac == 1) * endsWith(Vaccine, "RZV_2d"), 2 * N, 0),
-      N_Covered_ZVL = ifelse((TimeVac == 1) * (Vaccine == "ZVL"), N, 0),
-      N_Covered_RZV = ifelse((TimeVac == 1) * !(Vaccine %in% c("None", "ZVL")), N, 0),
-                            
+  fn_vac <- function(df) {
+    df <- df %>% 
+      left_join(p_demo$N, by = c("Year", "Age")) %>%
+      mutate(
+        N = N * Prop
+      ) %>% 
+      select(-Prop)
+    
+    bind_rows(
+      df %>% 
+        filter(Vaccine == "ZVL") %>% 
+        left_join(ves_zvl, by = c("Key", "Age", "Vaccine", "TimeVac")),
+      df %>% 
+        filter(Vaccine == "None") %>% 
+        mutate(Protection = 0),
+      df %>% 
+        filter(!(Vaccine %in% c("ZVL", "None"))) %>% 
+        left_join(ves_rzv, by = c("Key", "Vaccine", "TimeVac"))
     ) %>% 
-    group_by(Key, Year, Age) %>% 
-    summarise(
-      Protection = weighted.mean(Protection, w = N),
-      across(starts_with("N"), sum)
-    ) %>% 
-    ungroup()
+      mutate(
+        N_Uptake_ZVL = ifelse((TimeVac == 1) * (Vaccine == "ZVL"), N, 0),
+        N_Uptake_RZV = ifelse((TimeVac == 1) * endsWith(Vaccine, "RZV_1d"), N, 0) +
+          ifelse((TimeVac == 1) * endsWith(Vaccine, "RZV_2d"), 2 * N, 0),
+        N_Covered_ZVL = ifelse((TimeVac == 1) * (Vaccine == "ZVL"), N, 0),
+        N_Covered_RZV = ifelse((TimeVac == 1) * !(Vaccine %in% c("None", "ZVL")), N, 0),
+        
+      ) %>% 
+      group_by(Key, Year, Age) %>% 
+      summarise(
+        Protection = weighted.mean(Protection, w = N),
+        across(starts_with("N"), sum), .groups="keep"
+      ) %>% 
+      ungroup()
+  }
+  
+  
+  n_sims <- min(pars$N_Sims, n_sims)
+  
+  pb <- txtProgressBar(min = year0, max = year1, style = 3,  width = 50, char = "=") 
+  
+  # population <- with(model_proj, {
+  #   yr <- year0
+  #   pop <- tibble(Year = yr, Age = age0:age1, Vaccine = "None", TimeVac = -1, Prop = 1) %>% 
+  #     crossing(Key = 1:n_sims) %>% 
+  #     left_join(p_uptake, by = "Key")
+  #   
+  #   pop <- pop %>% uptaking(yr = yr, strategy = strategy)
+  #   
+  #   collector <- pop %>% fn_vac()
+  #   
+  #   while (yr < year1) {
+  #     yr <- yr + 1
+  #     setTxtProgressBar(pb, yr)
+  #     pop <- pop %>% 
+  #       ageing(yr, age0, age1) %>% 
+  #       uptaking(yr = yr, strategy = strategy)
+  #     collector <- collector %>% bind_rows(pop %>% fn_vac())
+  #   }
+  #   collector
+  # })
+  # 
+  
+  population <- with(model_proj, {
+    yr <- year0
+    pop <- tibble(Year = yr, Age = age0:age1, Vaccine = "None", TimeVac = -1, Prop = 1) %>% 
+      crossing(Key = 1:n_sims) %>% 
+      left_join(p_uptake, by = "Key")
+    
+    pop <- pop %>% uptaking(yr = yr, strategy = strategy)
+    
+    collector <- pop
+    
+    while (yr < year1) {
+      yr <- yr + 1
+      setTxtProgressBar(pb, yr)
+      pop <- pop %>% 
+        ageing(yr, age0, age1) %>% 
+        uptaking(yr = yr, strategy = strategy)
+      collector <- collector %>% bind_rows(pop)
+    }
+    collector
+  }) %>% fn_vac()
 
   
-  sims <- vaccinated %>% 
+  sims <- population %>% 
     left_join(p_demo$DeathIm %>% select(Year, Age, r_mor_bg = r_death), by = c("Year", "Age")) %>% 
     inner_join(pars$Epidemiology, by = c("Key", "Age")) %>% 
     mutate(
@@ -212,19 +255,21 @@ a_projection <- function(pars, strategy, year0 = 2013, year1 = 2050, age0 = 0, a
 }
 
 
-exec_projection <- function(pars, year1 = 2050) {
-  res = list(
-    "Null" = a_projection(pars, strategy_null, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Stay" = a_projection(pars, strategy_zvl, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "ToRZV" = a_projection(pars, strategy_changeonly, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch65" = a_projection(pars, strategy_scheduled65, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch" = a_projection(pars, strategy_scheduled, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch1d85" = a_projection(pars, strategy_scheduled_1d85, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch1d95" = a_projection(pars, strategy_scheduled_1d95, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch2d85" = a_projection(pars, strategy_scheduled_2d85, year0 = 2013, year1 = year1, age0 = 50, age1 = 100),
-    "Sch2d95" = a_projection(pars, strategy_scheduled_2d95, year0 = 2013, year1 = year1, age0 = 50, age1 = 100)
+exec_projection <- function(pars, year1 = 2050, n_sims = 5000) {
+  age0 <- 60 
+  res <- list(
+    "Null" = strategy_null,
+    "Stay" = strategy_zvl,
+    "ToRZV" = strategy_changeonly,
+    "Sch65" = strategy_scheduled65,
+    "Sch" = strategy_scheduled,
+    "Sch1d85" = strategy_scheduled_1d85,
+    "Sch1d95" = strategy_scheduled_1d95,
+    "Sch2d85" = strategy_scheduled_2d85,
+    "Sch2d95" = strategy_scheduled_2d95
   )
   
+  res <- lapply(res, \(strategy) a_projection(pars, strategy, year0 = 2013, year1 = year1, age0 = age0, age1 = 100, n_sims = n_sims))
   
   yss_agp = lapply(names(res), \(k) res[[k]]$Yss_Agp %>% mutate(Scenario = k)) %>% bind_rows() 
   yss_68 = lapply(names(res), \(k) res[[k]]$Yss_68 %>% mutate(Scenario = k)) %>% bind_rows() 

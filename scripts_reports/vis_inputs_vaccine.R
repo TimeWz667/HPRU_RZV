@@ -113,35 +113,35 @@ g_zvl <- ggpubr::ggarrange(
 g_zvl
 
 
-# Alternative plot
-d_zvl2 <- pars_ve_zvl %>%
-  filter(Age - Yr == 70) %>% 
-  filter(Yr <= 20) %>% 
-  group_by(Yr) %>% 
-  summarise(
-    M = mean(VE),
-    L = quantile(VE, 0.025),
-    U = quantile(VE, 0.975)
-  )
-g_zvl_gof_alt <- ggplot(data = d_zvl2) +
-  geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
-  geom_line(aes(x = Yr, y = M), linetype = "32") +
-  geom_pointrange(data = dat_ve %>% filter(Source == "Klein 2023"), aes(x = Yr, y = M, ymin = L, ymax = U), fatten = 1) +
-  scale_y_continuous("Vaccine effectiveness, %", label = scales::percent) +
-  scale_x_continuous("Year since vaccinated") +
-  expand_limits(y = 0:1)
-
-
-g_zvl_var_alt <- ve_zvl %>% 
-  ggplot() +
-  geom_line(aes(x = Yr, y = VE, colour = Tag), linewidth = 1.0) +
-  geom_line(data = d_zvl2, aes(x = Yr, y = M, colour = "Klein 2023"), linetype = "32") +
-  scale_y_continuous("Vaccine effectiveness, %", labels = scales::percent) +
-  scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
-  scale_colour_manual(NULL, values = c("black", "orange", "purple")) +
-  expand_limits(y = 0:1, x = 20) +
-  theme(legend.position = c(0.5, 0.7), legend.justification = c(-0.1, -0.1),
-    legend.background = element_blank())
+# # Alternative plot
+# d_zvl2 <- pars_ve_zvl %>%
+#   filter(Age - Yr == 70) %>% 
+#   filter(Yr <= 20) %>% 
+#   group_by(Yr) %>% 
+#   summarise(
+#     M = mean(VE),
+#     L = quantile(VE, 0.025),
+#     U = quantile(VE, 0.975)
+#   )
+# g_zvl_gof_alt <- ggplot(data = d_zvl2) +
+#   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
+#   geom_line(aes(x = Yr, y = M), linetype = "32") +
+#   geom_pointrange(data = dat_ve %>% filter(Source == "Klein 2023"), aes(x = Yr, y = M, ymin = L, ymax = U), fatten = 1) +
+#   scale_y_continuous("Vaccine effectiveness, %", label = scales::percent) +
+#   scale_x_continuous("Year since vaccinated") +
+#   expand_limits(y = 0:1)
+# 
+# 
+# g_zvl_var_alt <- ve_zvl %>% 
+#   ggplot() +
+#   geom_line(aes(x = Yr, y = VE, colour = Tag), linewidth = 1.0) +
+#   geom_line(data = d_zvl2, aes(x = Yr, y = M, colour = "Klein 2023"), linetype = "32") +
+#   scale_y_continuous("Vaccine effectiveness, %", labels = scales::percent) +
+#   scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
+#   scale_colour_manual(NULL, values = c("black", "orange", "purple")) +
+#   expand_limits(y = 0:1, x = 20) +
+#   theme(legend.position = c(0.5, 0.7), legend.justification = c(-0.1, -0.1),
+#     legend.background = element_blank())
 
 
 ## RZV VE -----
@@ -237,52 +237,52 @@ g_rzv <- ggpubr::ggarrange(
 g_rzv
 
 # Plot focusing on main VE estimate
-d_rw <- pars_ve_rzv %>% 
-  filter(Yr <= 20) %>% 
-  group_by(Yr) %>% 
-  summarise(
-    M = mean(VE),
-    L = quantile(VE, 0.025),
-    U = quantile(VE, 0.975)
-  )
-d_rw$Tag <- "Real-world, two doses (Baseline)"
-
-g_rzv_gof_alt <- pars_ve_rzv %>% 
-  filter(Yr <= 20) %>% 
-  group_by(Yr) %>% 
-  summarise(
-    M = mean(apply_lor(VE, - lor_rw)),
-    L = quantile(apply_lor(VE, - lor_rw), 0.025),
-    U = quantile(apply_lor(VE, - lor_rw), 0.975)
-  ) %>% 
-  ggplot() +
-  geom_ribbon(aes(x = Yr, ymin = L, ymax = U, fill = "Trial, two doses"), alpha = 0.2) +
-  geom_line(aes(x = Yr, y = M, colour = "Trial, two doses", linetype = "Trial, two doses")) +
-  geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U), fatten = 1) +
-  scale_y_continuous("Vaccine efficacy, %", label = scales::percent) +
-  scale_x_continuous("Year since vaccinated") +
-  scale_colour_manual(NULL, values = c("black"), aesthetics = c("fill", "colour")) +
-  scale_linetype_manual(NULL, values = c("32")) +
-  expand_limits(y = 0) +
-  theme(legend.position = c(0, 0), legend.justification = c(-0.1, -0.1))
-
-g_rzv_var_alt <- ggplot(ve_rzv) +
-  geom_ribbon(data = d_rw, aes(x = Yr, ymin = L, ymax = U, fill = Tag), alpha = 0.2) +
-  geom_line(aes(x = Yr, y = VE, colour = Tag, linetype = Tag)) +
-  scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
-  scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
-  scale_colour_manual(NULL, values = c("black", "#36f", "#36f", "#e3a", "#e3a"), aesthetics = c("fill", "colour")) +
-  scale_linetype_manual(NULL, values = c("32", "solid", "32", "solid", "32")) +
-  expand_limits(y = 0:1, x = 20) +
-  theme(legend.position = c(0, 0), legend.justification = c(-0.01, -0.1), legend.background = element_blank())
-
-g_alt <- ggpubr::ggarrange(
-  g_rzv_gof_alt + labs(subtitle = "(A) RZV: Goodness of fit"), 
-  g_rzv_var_alt + labs(subtitle = "(B) RZV: Variants of implementation"),
-  g_zvl_gof_alt + labs(subtitle = "(C) ZVL: Goodness of fit"), 
-  g_zvl_var_alt + labs(subtitle = "(D) ZVL: Effectiveness by age"),
-  nrow = 2, ncol = 2
-)
+# d_rw <- pars_ve_rzv %>% 
+#   filter(Yr <= 20) %>% 
+#   group_by(Yr) %>% 
+#   summarise(
+#     M = mean(VE),
+#     L = quantile(VE, 0.025),
+#     U = quantile(VE, 0.975)
+#   )
+# d_rw$Tag <- "Real-world, two doses (Baseline)"
+# 
+# g_rzv_gof_alt <- pars_ve_rzv %>% 
+#   filter(Yr <= 20) %>% 
+#   group_by(Yr) %>% 
+#   summarise(
+#     M = mean(apply_lor(VE, - lor_rw)),
+#     L = quantile(apply_lor(VE, - lor_rw), 0.025),
+#     U = quantile(apply_lor(VE, - lor_rw), 0.975)
+#   ) %>% 
+#   ggplot() +
+#   geom_ribbon(aes(x = Yr, ymin = L, ymax = U, fill = "Trial, two doses"), alpha = 0.2) +
+#   geom_line(aes(x = Yr, y = M, colour = "Trial, two doses", linetype = "Trial, two doses")) +
+#   geom_pointrange(data = dat_ve %>% filter(!Realworld), aes(x = Yr, y = M, ymin = L, ymax = U), fatten = 1) +
+#   scale_y_continuous("Vaccine efficacy, %", label = scales::percent) +
+#   scale_x_continuous("Year since vaccinated") +
+#   scale_colour_manual(NULL, values = c("black"), aesthetics = c("fill", "colour")) +
+#   scale_linetype_manual(NULL, values = c("32")) +
+#   expand_limits(y = 0) +
+#   theme(legend.position = c(0, 0), legend.justification = c(-0.1, -0.1))
+# 
+# g_rzv_var_alt <- ggplot(ve_rzv) +
+#   geom_ribbon(data = d_rw, aes(x = Yr, ymin = L, ymax = U, fill = Tag), alpha = 0.2) +
+#   geom_line(aes(x = Yr, y = VE, colour = Tag, linetype = Tag)) +
+#   scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
+#   scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
+#   scale_colour_manual(NULL, values = c("black", "#36f", "#36f", "#e3a", "#e3a"), aesthetics = c("fill", "colour")) +
+#   scale_linetype_manual(NULL, values = c("32", "solid", "32", "solid", "32")) +
+#   expand_limits(y = 0:1, x = 20) +
+#   theme(legend.position = c(0, 0), legend.justification = c(-0.01, -0.1), legend.background = element_blank())
+# 
+# g_alt <- ggpubr::ggarrange(
+#   g_rzv_gof_alt + labs(subtitle = "(A) RZV: Goodness of fit"), 
+#   g_rzv_var_alt + labs(subtitle = "(B) RZV: Variants of implementation"),
+#   g_zvl_gof_alt + labs(subtitle = "(C) ZVL: Goodness of fit"), 
+#   g_zvl_var_alt + labs(subtitle = "(D) ZVL: Effectiveness by age"),
+#   nrow = 2, ncol = 2
+# )
 
 # zvl_prev <- read_csv(here::here("data", "previous", "2019_fig9_ZVL.csv"))
 # 
@@ -316,8 +316,6 @@ g_alt <- ggpubr::ggarrange(
 
 
 ## ZVL uptake
-
-
 load(here::here("data", "processed_vaccine", "coverage.rdata"))
 load(here::here("pars", "fitted_coverage.rdata"))
 
@@ -346,12 +344,10 @@ g_uptake_gof <- pred1$pred %>%
   theme(legend.position = c(1, 0), legend.justification = c(1.1, -0.1))
 
 
-
-
 g_uptake_gof
 
 
-dir.create("docs/figs/inputs", showWarnings = T)
+dir.create("docs/figs/inputs", showWarnings = F)
 ggsave(g_zvl, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_zvl.png"), width = 12, height = 6)
 ggsave(g_rzv, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_rzv.png"), width = 12, height = 6)
 ggsave(g_alt, filename = here::here("docs", "figs", "inputs", "g_vaccine_ve_alt.png"), width = 10, height = 9)

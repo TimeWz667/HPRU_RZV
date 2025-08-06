@@ -62,11 +62,21 @@ save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_tr.rdata"))
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_tr_zie.rdata"))
 
 
-pars_ve_rw <- pars_ve_tr %>% 
+prop <- pars_ve_tr %>% 
+  filter(Yr == 1) %>% 
   mutate(
-    VE = align_to(VE, mean(VE[Yr == 1]), tar = offset_rzv$ve0),
+    lor = find_lor(mean(VE), offset_rzv$ve0),
+    prop = apply_lor(VE, lor) / VE 
+  ) %>% 
+  select(Key, prop)
+
+
+pars_ve_rw <- pars_ve_tr %>% 
+  left_join(prop) %>% 
+  mutate(
+    VE = VE * prop,
     Variant = "RW"
-  )
+  ) %>% select(-prop)
 
 
 pars_ve_rzv <- pars_ve_rw
@@ -74,29 +84,56 @@ save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw.rdata"))
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_zie.rdata"))
 
 
-pars_ve_rzv <- pars_ve_rw %>%
+prop <- pars_ve_rw %>% 
+  filter(Yr == 1) %>% 
   mutate(
-    VE = apply_lor(VE, offset_rzv$re),
+    prop = apply_lor(VE, offset_rzv$re) / VE 
+  ) %>% 
+  select(Key, prop)
+
+
+pars_ve_rzv <- pars_ve_rw %>%
+  left_join(prop) %>%
+  mutate(
+    VE = VE * prop,
     Variant = "ReRZV"
-  )
+  ) %>% select(-prop)
 
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rerzv_rw.rdata"))
 
 
-pars_ve_rzv <- pars_ve_rw %>%
+prop <- pars_ve_rw %>% 
+  filter(Yr == 1) %>% 
   mutate(
-    VE = apply_lor(VE, offset_rzv$single),
+    prop = apply_lor(VE, offset_rzv$single) / VE 
+  ) %>% 
+  select(Key, prop)
+
+
+pars_ve_rzv <- pars_ve_rw %>%
+  left_join(prop) %>%
+  mutate(
+    VE = VE * prop,
     Variant = "RZV_Single"
-  )
+  ) %>% select(-prop)
 
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_single_rw.rdata"))
 
 
-pars_ve_rzv <- pars_ve_rw %>%
+prop <- pars_ve_rw %>% 
+  filter(Yr == 1) %>% 
   mutate(
-    VE = apply_lor(VE, offset_rzv$re + offset_rzv$single),
+    prop = apply_lor(VE, offset_rzv$re + offset_rzv$single) / VE 
+  ) %>% 
+  select(Key, prop)
+
+
+pars_ve_rzv <- pars_ve_rw %>%
+  left_join(prop) %>%
+  mutate(
+    VE = VE * prop,
     Variant = "ReRZV_Single"
-  )
+  ) %>% select(-prop)
 
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_resingle_rw.rdata"))
 
@@ -145,11 +182,22 @@ pars_ve_rzv <- pars_ve_tr
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_tr_zig.rdata"))
 
 
-pars_ve_rw <- pars_ve_tr %>% 
+prop <- pars_ve_tr %>% 
+  filter(Yr == 1) %>% 
   mutate(
-    VE = align_to(VE, mean(VE[Yr == 1]), tar = offset_rzv$ve0),
-    Variant = "RW",
-  )
+    lor = find_lor(mean(VE), offset_rzv$ve0),
+    prop = apply_lor(VE, lor) / VE 
+  ) %>% 
+  select(Key, prop)
+
+
+pars_ve_rw <- pars_ve_tr %>% 
+  left_join(prop) %>% 
+  mutate(
+    VE = VE * prop,
+    Variant = "RW"
+  ) %>% select(-prop)
+
 
 pars_ve_rzv <- pars_ve_rw 
 save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_rw_zig.rdata"))

@@ -34,10 +34,10 @@ alpha_unused <- 0.4
 
 gs$g_r_hz <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = r_hz), linewidth = isize) +
+  stat_lineribbon(aes(x = Age, y = r_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   geom_pointinterval(data = epi_hz %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
   geom_pointinterval(data = epi_hz %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
-  scale_colour_brewer() +
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
@@ -47,10 +47,10 @@ gs$g_r_hz
 
 gs$g_r_hz_gp <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = p_gp * r_hz), linewidth = isize) +
+  stat_lineribbon(aes(x = Age, y = p_gp * r_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   geom_pointinterval(data = epi_gp %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
   geom_pointinterval(data = epi_gp %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
-  scale_colour_brewer() +
   scale_y_continuous("Cases per 1,000 person-years", labels = scales::number_format(scale = 1e3),
     breaks = seq(0, 12, 2) * 0.001) +
   coord_cartesian(ylim = c(0, 12e-3), xlim = c(48, 102), expand = FALSE) +
@@ -61,8 +61,8 @@ gs$g_r_hz_gp
 
 gs$g_p_hosp <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = 1 - p_gp), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = 1 - p_gp), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("Proportion of cases", labels = scales::percent) +
   coord_cartesian(ylim = c(0, 0.2), xlim = c(48, 102), expand = FALSE) +
   labs(subtitle = "Herpes zoster hospitalisation", colour = "Level")
@@ -72,7 +72,8 @@ gs$g_p_hosp
 
 gs$g_r_hz_hosp <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = (1 - p_gp) * r_hz), linewidth = isize) +
+  stat_lineribbon(aes(x = Age, y = (1 - p_gp) * r_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_colour_brewer() +
   scale_y_continuous("per 1,000 person-year", labels = scales::number_format(scale = 1e3)) +
   labs(subtitle = "Epidemiology: Incidence HZ, hospitalised episode", colour = "Level") +
@@ -83,10 +84,10 @@ gs$g_r_hz_hosp
 
 gs$g_p_phn <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = p_phn), linewidth = isize) +
+  stat_lineribbon(aes(x = Age, y = p_phn), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   geom_pointinterval(data = epi_phn %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
   geom_pointinterval(data = epi_phn %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
-  scale_colour_brewer() +
   scale_y_continuous("Proportion of cases", labels = scales::percent) +
   labs(subtitle = "Postherpetic neuralgia", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.4), xlim = c(48, 102), expand = FALSE)
@@ -96,8 +97,8 @@ gs$g_p_phn
 
 gs$g_p_mor <- pars$Epidemiology %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = r_mor_hz), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = r_mor_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("Deaths per 1,000,000 person-years", labels = scales::number_format(scale = 1e6)) +
   labs(subtitle = "Herpes zoster mortality", colour = "Level") +
   coord_cartesian(ylim = c(0, 3.3e-5), xlim = c(48, 102), expand = FALSE)
@@ -105,23 +106,23 @@ gs$g_p_mor <- pars$Epidemiology %>%
 gs$g_p_mor
 
 
-gs$g_r_hz_mor <- pars$Epidemiology %>% 
-  ggplot() +
-  stat_interval(aes(x = Age, y = r_mor_hz * r_hz), linewidth = isize) +
-  scale_colour_brewer() +
-  scale_y_continuous("Mortality HZ, per 1,000", labels = scales::number_format(scale = 1e3)) +
-  labs(colour = "Level") +
-  expand_limits(y = 0)
-
-gs$g_r_hz_mor
+# gs$g_r_hz_mor <- pars$Epidemiology %>% 
+#   ggplot() +
+#   stat_interval(aes(x = Age, y = r_mor_hz * r_hz), linewidth = isize) +
+#   scale_colour_brewer() +
+#   scale_y_continuous("Mortality HZ, per 1,000", labels = scales::number_format(scale = 1e3)) +
+#   labs(colour = "Level") +
+#   expand_limits(y = 0)
+# 
+# gs$g_r_hz_mor
 
 
 #### QoL -----
 
 gs$g_ql_ph <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = QL_ph), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = QL_ph), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("QALYs per case") +
   labs(subtitle = "Health-related QoL loss due to herpes zoster", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.22), xlim = c(48, 102), expand = FALSE)
@@ -131,8 +132,8 @@ gs$g_ql_ph
 
 gs$g_ql_pn <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = QL_pn), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = QL_pn), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("QALYs per case") +
   labs(subtitle = "Health-related QoL loss due to HZ", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.065), xlim = c(48, 102), expand = FALSE)
@@ -142,8 +143,8 @@ gs$g_ql_pn
 
 gs$g_ql_0 <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = QL_0), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = QL_0), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("QALYs per case") +
   labs(subtitle = "Health-related QoL loss due to HZ", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.1501), xlim = c(48, 102), expand = FALSE)
@@ -207,8 +208,8 @@ gs$g_demo <- ggarrange(
 
 gs$g_cost_hosp <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = cost_hosp_pp_inf), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = cost_hosp_pp_inf), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("GBP (£)") +
   coord_cartesian(xlim = c(48, 102), ylim = c(0, 5600), expand = FALSE) +
   labs(subtitle = "Direct medical cost, hospitalised episode", colour = "Level")
@@ -221,8 +222,8 @@ iqr <- pars$CostEff %>%
 
 gs$g_cost_gp <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = cost_GP_pp_non_PHN_HZ_inf), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = cost_GP_pp_non_PHN_HZ_inf), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("GBP (£)") +
   coord_cartesian(xlim = c(48, 102), iqr[2] + 8 * c(iqr[1] - iqr[2], iqr[3] - iqr[2]), expand = FALSE) +
   labs(subtitle = "Direct medical cost, GP episode without PHN", colour = "Level")
@@ -235,8 +236,8 @@ iqr <- pars$CostEff %>%
 
 gs$g_cost_gpphn <- pars$CostEff %>% 
   ggplot() +
-  stat_interval(aes(x = Age, y = cost_GP_pp_PHN_inf), linewidth = isize) +
-  scale_colour_brewer() +
+  stat_lineribbon(aes(x = Age, y = cost_GP_pp_PHN_inf), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  scale_fill_brewer("Interval") +
   scale_y_continuous("GBP (£)") +
   coord_cartesian(xlim = c(48, 102), iqr[2] + 8 * c(iqr[1] - iqr[2], iqr[3] - iqr[2]), expand = FALSE) +
   labs(subtitle = "Direct medical cost, GP episode with PHN", colour = "Level")
