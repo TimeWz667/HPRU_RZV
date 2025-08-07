@@ -129,50 +129,55 @@ load_inputs_ce <- function(pars_epi, dis_e, dis_c) {
 }
 
 
-load_inputs <- function(pars_ce, vtype=c("rw", "tr"),
-                        f_ve_zvl, f_ve_rzv, f_ve_offset) {
+load_inputs <- function(pars_ce, vtype=c("rw", "tr"), f_ve_zvl, f_ve_rzv, seed = NA) {
   
   
   pars <- pars_ce
   pars$vtype <- match.arg(vtype)
   n_sims <- pars$N_Sims
   
-  load(f_ve_zvl)
-  load(f_ve_rzv)
-  load(f_ve_offset)
+  f_ve_zvl <- here::here("pars", "pars_ve_zvl_rwa.rdata")
+  f_ve_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw.rdata")
   
+  load(f_ve_zvl)
+  
+  if (!is.na(seed)) set.seed(seed)
   pars$VE_ZVL <- sample_table(pars_ve_zvl %>% filter(!IC), n_sims) %>% 
-    crossing(Age = 50:100) %>% 
-    filter(Age - Yr >= 50) %>% 
-    left_join(offset_zvl$agp) %>% 
-    rename(VE0 = VE) %>% 
-    mutate(
-      oddVE = log(VE0 / (1 - VE0)) + or70spline,
-      VE = 1 / (1 + exp(-oddVE)),
-    ) %>% 
     select(Key, Vaccine, Age, TimeVac = Yr, Protection = VE)
   
-  pars$VE_RZV_2d <- ve_rzv <- sample_table(pars_ve_rzv %>% filter(!IC), n_sims) %>% 
+  
+  load(f_ve_rzv)
+  
+  if (!is.na(seed)) set.seed(seed)
+  pars$VE_RZV_2d <- pars_ve_rzv %>% 
+    filter(!IC) %>% 
     mutate(Vaccine = "RZV_2d") %>% 
-    select(Key, Vaccine, TimeVac = Yr, Protection = VE)
+    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
+    sample_table(n_sims) 
   
-  pars$VE_RZV_1d <- ve_rzv %>% 
-    mutate(
-      Vaccine = "RZV_1d",
-      Protection = apply_lor(Protection, offset_rzv$single)
-    )
   
-  pars$VE_ReRZV_2d <- ve_rzv %>% 
-    mutate(
-      Vaccine = "ReRZV_2d",
-      Protection = apply_lor(Protection, offset_rzv$re)
-    )
+  if (!is.na(seed)) set.seed(seed)
+  pars$VE_RZV_1d <- local({load(gsub("rzv_uv2", "rzv_uv1", f_ve_rzv)); pars_ve_rzv}) %>% 
+    filter(!IC) %>% 
+    mutate(Vaccine = "RZV_1d") %>% 
+    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
+    sample_table(n_sims) 
   
-  pars$VE_ReRZV_1d <- ve_rzv %>% 
-    mutate(
-      Vaccine = "ReRZV_1d",
-      Protection = apply_lor(Protection, offset_rzv$single + offset_rzv$re)
-    )
+  
+  if (!is.na(seed)) set.seed(seed)
+  pars$VE_ReRZV_2d <- local({load(gsub("rzv_uv2", "rzv_re2", f_ve_rzv)); pars_ve_rzv}) %>% 
+    filter(!IC) %>% 
+    mutate(Vaccine = "ReRZV_2d") %>% 
+    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
+    sample_table(n_sims) 
+  
+  
+  if (!is.na(seed)) set.seed(seed)
+  pars$VE_ReRZV_1d <- local({load(gsub("rzv_uv2", "rzv_re1", f_ve_rzv)); pars_ve_rzv}) %>% 
+    filter(!IC) %>% 
+    mutate(Vaccine = "ReRZV_1d") %>% 
+    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
+    sample_table(n_sims) 
 
   return(pars)
 }
