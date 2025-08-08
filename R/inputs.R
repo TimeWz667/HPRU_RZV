@@ -130,14 +130,10 @@ load_inputs_ce <- function(pars_epi, dis_e, dis_c) {
 
 
 load_inputs <- function(pars_ce, vtype=c("rw", "tr"), f_ve_zvl, f_ve_rzv, seed = NA) {
-  
-  
   pars <- pars_ce
   pars$vtype <- match.arg(vtype)
   n_sims <- pars$N_Sims
-  
-  f_ve_zvl <- here::here("pars", "pars_ve_zvl_rwa.rdata")
-  f_ve_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw.rdata")
+
   
   load(f_ve_zvl)
   
@@ -190,13 +186,9 @@ save_pars <- function(pars, f) {
 
 
 load_inputs_proj <- function(pars) {
-  
   load(here::here("pars", "pars_demo.rdata"))
   pars$Demography <- pars_demo$England
-  
-  
   pars$Uptake <- local({load(here::here("pars", "fitted_vac_uptake.rdata")); pars})
-  
   return(pars)
 }
 

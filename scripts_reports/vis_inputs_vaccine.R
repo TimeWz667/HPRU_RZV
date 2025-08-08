@@ -146,7 +146,7 @@ g_zvl
 
 ## RZV VE -----
 
-load(here::here("pars", "pars_ve_rzv_tr.rdata"))
+load(here::here("pars", "pars_ve_rzv_uv2_tr.rdata"))
 
 d_tr <- pars_ve_rzv%>% 
   filter(Yr <= 20) %>% 
@@ -163,38 +163,23 @@ d_tr <- pars_ve_rzv%>%
 
 
 load(here::here("pars", "pars_ve_rzv_rw.rdata"))
-
-
-d <- pars_ve_rzv%>% 
-  filter(Yr <= 20) %>% 
-  #filter(Yr %in% c(5, 10)) %>% 
-  group_by(Vaccine, Yr) %>% 
-  summarise(
-    VE = median(VE)
-  ) %>% 
-  mutate(
-    Tag = "Real-world, two doses (Baseline)"
-  )
+pars <- local({load(here::here("pars", "pars_base_35_rw.rdata")); pars})
 
 
 ve_rzv <- bind_rows(
-  d, 
   d_tr,
-  d %>% 
-    mutate(
-      VE = apply_lor(VE, offset_rzv$single),
-      Tag = "Real-world, single dose"
-    ),
-  d %>%
-    mutate(
-      VE = apply_lor(VE, offset_rzv$re),
-      Tag = "Real-world, two doses after ZVL"
-    ),
-  d %>%
-    mutate(
-      VE = apply_lor(VE, offset_rzv$single + offset_rzv$re),
-      Tag = "Real-world, single dose after ZVL"
-    )
+  pars$VE_RZV_2d %>% group_by(Vaccine, TimeVac) %>% summarise(VE = mean(Protection)) %>% 
+    mutate(Tag = "Real-world, two doses (Baseline)") %>% 
+    select(Yr = TimeVac, VE, Tag, Vaccine),
+  pars$VE_RZV_1d %>% group_by(Vaccine, TimeVac) %>% summarise(VE = mean(Protection)) %>% 
+    mutate(Tag = "Real-world, single dose") %>% 
+    select(Yr = TimeVac, VE, Tag, Vaccine),
+  pars$VE_ReRZV_2d %>% group_by(Vaccine, TimeVac) %>% summarise(VE = mean(Protection)) %>% 
+    mutate(Tag = "Real-world, two doses after ZVL") %>% 
+    select(Yr = TimeVac, VE, Tag, Vaccine),
+  pars$VE_ReRZV_1d %>% group_by(Vaccine, TimeVac) %>% summarise(VE = mean(Protection)) %>% 
+    mutate(Tag = "Real-world, single dose after ZVL") %>% 
+    select(Yr = TimeVac, VE, Tag, Vaccine)
 ) %>% 
   mutate(
     Tag = factor(Tag, c("Trial, two doses", 
@@ -202,15 +187,17 @@ ve_rzv <- bind_rows(
                         "Real-world, two doses after ZVL", 
                         "Real-world, single dose",
                         "Real-world, single dose after ZVL"))
-  )
+  ) %>% 
+  filter(Yr <= 20)
 
 
 g_rzv_gof <- d_tr %>% 
   ggplot() +
   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
   geom_line(aes(x = Yr, y = VE)) +
-  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
-  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  geom_pointrange(data = dat_ve2, aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  # geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  # geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
   scale_y_continuous("Vaccine efficacy, %", label = scales::percent) +
   scale_x_continuous("Year since vaccinated") +
   expand_limits(y = 0)

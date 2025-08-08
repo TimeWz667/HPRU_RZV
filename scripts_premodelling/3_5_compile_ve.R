@@ -41,6 +41,22 @@ save(pars_ve_zvl, file = here::here("pars", "pars_ve_zvl_rwa.rdata"))
 
 
 ## RZV: zi-exponential version selected ----- 
+apply_ve_offset <- function(ve, off) {
+  prop <- ve %>% 
+    filter(Yr == 1) %>% 
+    mutate(
+      prop = apply_lor(VE, off) / VE 
+    ) %>% 
+    select(Key, prop)
+  
+  
+  ve %>%
+    left_join(prop) %>%
+    mutate(
+      VE = VE * prop,
+    ) %>% select(-prop)
+}
+
 
 for(tag in c("y10_zig", "y10_zie", "y11_zig", "y11_zie", "y11m_zig", "y11m_zie")) {
   tag <- glue::as_glue(tag)
@@ -61,7 +77,29 @@ for(tag in c("y10_zig", "y10_zie", "y11_zig", "y11_zie", "y11m_zig", "y11m_zie")
   
   pars_ve_rzv <- pars_ve_tr
   save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2_tr_" + tag + ".rdata"))
-
+  
+  
+  pars_ve_rzv <- pars_ve_tr %>%
+    apply_ve_offset(offset_rzv$single) %>% 
+    mutate(Variant = "RZV_Single")
+  
+  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv1_tr_" + tag + ".rdata"))
+  
+  
+  pars_ve_rzv <- pars_ve_tr %>%
+    apply_ve_offset(offset_rzv$re) %>% 
+    mutate(Variant = "ReRZV")
+  
+  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_re2_tr_" + tag + ".rdata"))
+  
+  
+  pars_ve_rzv <- pars_ve_tr %>%
+    apply_ve_offset(offset_rzv$re + offset_rzv$single) %>% 
+    mutate(Variant = "ReRZV_Single")
+  
+  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_re1_tr_" + tag + ".rdata"))
+  
+  
   
   ## Realworld VE ----
   prop <- pars_ve_tr %>% 
@@ -85,114 +123,60 @@ for(tag in c("y10_zig", "y10_zie", "y11_zig", "y11_zie", "y11m_zig", "y11m_zie")
   save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2_rw_" + tag + ".rdata"))
   
   
-  prop <- pars_ve_rw %>% 
-    filter(Yr == 1) %>% 
-    mutate(
-      prop = apply_lor(VE, offset_rzv$re) / VE 
-    ) %>% 
-    select(Key, prop)
-  
-  
   pars_ve_rzv <- pars_ve_rw %>%
-    left_join(prop) %>%
-    mutate(
-      VE = VE * prop,
-      Variant = "ReRZV"
-    ) %>% select(-prop)
-  
-  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_re2_rw_" + tag + ".rdata"))
-  
-  
-  prop <- pars_ve_rw %>% 
-    filter(Yr == 1) %>% 
-    mutate(
-      prop = apply_lor(VE, offset_rzv$single) / VE 
-    ) %>% 
-    select(Key, prop)
-  
-  
-  pars_ve_rzv <- pars_ve_rw %>%
-    left_join(prop) %>%
-    mutate(
-      VE = VE * prop,
-      Variant = "RZV_Single"
-    ) %>% select(-prop)
+    apply_ve_offset(offset_rzv$single) %>% 
+    mutate(Variant = "RZV_Single")
   
   save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv1_rw_" + tag + ".rdata"))
   
   
-  prop <- pars_ve_rw %>% 
-    filter(Yr == 1) %>% 
-    mutate(
-      prop = apply_lor(VE, offset_rzv$re + offset_rzv$single) / VE 
-    ) %>% 
-    select(Key, prop)
+  pars_ve_rzv <- pars_ve_rw %>%
+    apply_ve_offset(offset_rzv$re) %>% 
+    mutate(Variant = "ReRZV")
+  
+  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_re2_rw_" + tag + ".rdata"))
   
   
   pars_ve_rzv <- pars_ve_rw %>%
-    left_join(prop) %>%
-    mutate(
-      VE = VE * prop,
-      Variant = "ReRZV_Single"
-    ) %>% select(-prop)
+    apply_ve_offset(offset_rzv$re + offset_rzv$single) %>% 
+    mutate(Variant = "ReRZV_Single")
   
   save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_re1_rw_" + tag + ".rdata"))
   
   
-  pars_ve_rzv <- pars_ve_rw %>% 
-    group_by(Key) %>% 
-    mutate(
-      VE = case_when(
-        Yr <= 11 ~ VE,
-        T ~ VE[Yr == 11]
-      )
-    )
-  
-  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2long_rw_" + tag + ".rdata"))
-  
-  
-  pars_ve_rzv <- pars_ve_rw %>% 
-    group_by(Key) %>% 
-    mutate(
-      VE = case_when(
-        Yr <= 11 ~ VE,
-        T ~ 0
-      )
-    )
-  
-  save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2short_rw_" + tag + ".rdata"))
+  # pars_ve_rzv <- pars_ve_rw %>% 
+  #   group_by(Key) %>% 
+  #   mutate(
+  #     VE = case_when(
+  #       Yr <= 11 ~ VE,
+  #       T ~ VE[Yr == 11]
+  #     )
+  #   )
+  # 
+  # save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2long_rw_" + tag + ".rdata"))
+  # 
+  # 
+  # pars_ve_rzv <- pars_ve_rw %>% 
+  #   group_by(Key) %>% 
+  #   mutate(
+  #     VE = case_when(
+  #       Yr <= 11 ~ VE,
+  #       T ~ 0
+  #     )
+  #   )
+  # 
+  # save(pars_ve_rzv, file = here::here("pars", "pars_ve_rzv_uv2short_rw_" + tag + ".rdata"))
 }
-
 
 
 ## Select meta
 tag <- glue::as_glue("y11_zie")
 
-for(variant in c("uv2_tr", "uv2_rw", "re2_rw", "uv1_rw", "re1_rw", "uv2long_rw", "uv2short_rw")) {
+for(variant in c("uv2_tr", "re2_tr", "uv1_tr", "re1_tr", 
+                 "uv2_rw", "re2_rw", "uv1_rw", "re1_rw")) {
   variant <- glue::as_glue(variant)
   
   file.copy(from = here::here("pars", "pars_ve_rzv_" + variant + "_" + tag + ".rdata"), 
             to = here::here("pars", "pars_ve_rzv_" + variant + ".rdata"), overwrite = T)
 }
-
-
-## Sensitivity scenarios
-for(tag in c("y10_zig", "y11_zie", "y11m_zie")) {
-  tag <- glue::as_glue(tag)
-  
-  for(variant in c("uv2_tr", "uv2_rw", "uv2long_rw", "uv2short_rw")) {
-    variant <- glue::as_glue(variant)
-    
-    file.copy(from = here::here("pars", "pars_ve_rzv_" + variant + "_" + tag + ".rdata"), 
-              to = here::here("pars", "pars_ve_sens_rzv_" + variant + ".rdata"), overwrite = T)
-  }
-}
-
-
-
-
-
-
-
-
 

@@ -1,56 +1,49 @@
 
-load_inputs_waning <- function(pars_ce, f_ve_zvl, f_ve_rzv_zig, f_ve_rzv_zie, f_ve_offset) {
+load_inputs_waning <- function(pars_ce, f_ve_zvl, f_ve_rzv, end_data = 11, tag = "rw_y11", seed = 11667) {
   # f_ve_zvl <- tar_read(f_zvl)
   # f_ve_rzv_zlg <- tar_read(f_rzv)
   # f_ve_rzv_zle <- here::here("pars", "pars_ve_rzv_rw_zle.rdata")
   # 
-  end_data <- 11
+  
+  tag <- glue::as_glue(tag)
+  if (startsWith(tag, "rw")) {
+    vtype <- "rw"
+  } else {
+    vtype <- "tr"
+  }
   
   pars <- list()
-  pars$zig <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zig, f_ve_offset)
-
-  pars$zig_short <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zig, f_ve_offset)
-  pars$zig_short$VE_RZV_2d <- pars$zig_short$VE_RZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zig_short$VE_RZV_1d <- pars$zig_short$VE_RZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zig_short$VE_ReRZV_2d <- pars$zig_short$VE_ReRZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zig_short$VE_ReRZV_1d <- pars$zig_short$VE_ReRZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
   
-  pars$zig_long <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zig, f_ve_offset)
-  pars$zig_long$VE_RZV_2d <- pars$zig_long$VE_RZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zig_long$VE_RZV_1d <- pars$zig_long$VE_RZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zig_long$VE_ReRZV_2d <- pars$zig_long$VE_ReRZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zig_long$VE_ReRZV_1d <- pars$zig_long$VE_ReRZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
+  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_" + tag + "_zig.rdata")
+  inp <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
+  
+  pars$zig <- inp
+  pars$zig_short <- inp
+  pars$zig_long <- inp
+  
+  for (vaccine in c("VE_RZV_2d", "VE_RZV_1d", "VE_ReRZV_2d", "VE_ReRZV_1d")) {
+    pars$zig_short[[vaccine]] <- pars$zig_short[[vaccine]] %>% group_by(Key) %>% 
+      mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
+    
+    pars$zig_long[[vaccine]] <- pars$zig_long[[vaccine]] %>% group_by(Key) %>% 
+      mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
+  }
   
   
-  pars$zie <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zie, f_ve_offset)
+  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_" + tag + "_zie.rdata")
+  inp <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
-  pars$zie_short <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zie, f_ve_offset)
-  pars$zie_short$VE_RZV_2d <- pars$zie_short$VE_RZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zie_short$VE_RZV_1d <- pars$zie_short$VE_RZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zie_short$VE_ReRZV_2d <- pars$zie_short$VE_ReRZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
-  pars$zie_short$VE_ReRZV_1d <- pars$zie_short$VE_ReRZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
+  pars$zie <- inp
+  pars$zie_short <- inp
+  pars$zie_long <- inp
   
-  pars$zie_long <- load_inputs(pars_ce, vtype = "rw", f_ve_zvl, f_ve_rzv_zie, f_ve_offset)
-  pars$zie_long$VE_RZV_2d <- pars$zie_long$VE_RZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zie_long$VE_RZV_1d <- pars$zie_long$VE_RZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zie_long$VE_ReRZV_2d <- pars$zie_long$VE_ReRZV_2d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
-  pars$zie_long$VE_ReRZV_1d <- pars$zie_long$VE_ReRZV_1d %>% group_by(Key) %>% 
-    mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
+  for (vaccine in c("VE_RZV_2d", "VE_RZV_1d", "VE_ReRZV_2d", "VE_ReRZV_1d")) {
+    pars$zie_short[[vaccine]] <- pars$zie_short[[vaccine]] %>% group_by(Key) %>% 
+      mutate(Protection = ifelse(TimeVac >= end_data, 0, Protection))
+    
+    pars$zie_long[[vaccine]] <- pars$zie_long[[vaccine]] %>% group_by(Key) %>% 
+      mutate(Protection = ifelse(TimeVac >= end_data, Protection[TimeVac == end_data], Protection))
+  }
  
   return(pars)
 }
@@ -155,8 +148,8 @@ summarise_sens_waning <- function(sens_waning, prefix = "", folder = NA, ext = "
       fn = factor(fn, levels = names(labs_fn))
     ) %>% 
     ggplot() +
-    geom_ribbon(aes(x = TimeVac, ymin = L, ymax = U, fill = fn), alpha = 0.3) +
-    geom_line(aes(x = TimeVac, y = M, colour = fn)) +
+    geom_ribbon(aes(x = TimeVac, ymin = L, ymax = U), alpha = 0.3) +
+    geom_line(aes(x = TimeVac, y = M)) +
     scale_y_continuous("Vaccine effectiveness, %, two doses", limits = c(0, 1), labels = scales::percent) +
     scale_x_continuous("Year since vaccination") +
     guides(fill = guide_none(), colour = guide_none()) +
