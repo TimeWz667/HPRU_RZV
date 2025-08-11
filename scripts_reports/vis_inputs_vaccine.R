@@ -206,8 +206,9 @@ g_rzv_gof <- d_tr %>%
 g_rzv_var <- ve_rzv %>% 
   ggplot() +
   geom_line(aes(x = Yr, y = VE, colour = Tag)) +
-  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
-  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  # geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  # geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  geom_pointrange(data = dat_ve2, aes(x = Yr, y = M, ymin = L, ymax = U)) +
   scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
   scale_x_continuous("Year since vaccinated", breaks = c(1, seq(5, 20, 5))) +
   scale_colour_discrete("") +
@@ -220,8 +221,9 @@ g_vac_ve_rzv <- d_tr %>%
   geom_ribbon(aes(x = Yr, ymin = L, ymax = U), alpha = 0.2) +
   geom_line(aes(x = Yr, y = VE)) +
   geom_line(data = ve_rzv, aes(x = Yr, y = VE, colour = Tag)) +
-  geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
-  geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  # geom_pointrange(data = dat_ve2 %>% filter(!(Yr %in% c(9, 10))), aes(x = Yr, y = M, ymin = L, ymax = U)) +
+  # geom_pointrange(data = dat_ve2 %>% filter(Yr %in% c(9, 10)), aes(x = Yr, y = M, ymin = L, ymax = U), shape = 1, linetype = 2) +
+  geom_pointrange(data = dat_ve2, aes(x = Yr, y = M, ymin = L, ymax = U)) +
   scale_y_continuous("Vaccine efficacy/effectiveness, %", labels = scales::percent) +
   scale_x_continuous("Year since vaccinated") +
   scale_colour_discrete("") +
