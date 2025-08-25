@@ -362,6 +362,8 @@ summarise_sens_uni <- function(sens_uni, prefix = "", folder = NA, ext = ".pdf")
   
   age0s <- sens_uni %>% pull(Age0) %>% unique() %>% sort()
   
+  limit <- sens_uni %>% pull(Thres20) %>% range()
+  
   gs_sens <- lapply(age0s, \(age0) {
     ord <- sens_uni %>%
       filter(Age0  == age0) %>% 
@@ -378,16 +380,14 @@ summarise_sens_uni <- function(sens_uni, prefix = "", folder = NA, ext = ".pdf")
         D = Direction,
         a0 = paste0("Age of vaccination: ", Age0)
       ) %>% 
-      ggplot() +
-      geom_rect(aes(xmin = Thres20_0, xmax = Thres20, ymin = i - 0.45, ymax = i + 0.45, 
-                    y = Pars, fill = D)) +
+      ggplot(aes(y = Pars)) +
+      geom_rect(aes(xmin = Thres20_0, xmax = Thres20, ymin = i - 0.45, ymax = i + 0.45,
+                    fill = D)) +
       scale_fill_discrete("Changes") +
-      scale_x_continuous("Threshold price, GBP per administration") +
+      scale_x_continuous("Threshold price, GBP per administration", limits = limit) +
       scale_y_discrete("Components", labels = labs_lvs) +
       facet_wrap(a0~.)
   })
-  
-  ggpubr::ggarrange(plotlist = gs_sens, ncol = 2, nrow = ceiling(length(age0s) / 2), common.legend = T, legend = "bottom")
   
   g_sens_ce <- ggpubr::ggarrange(plotlist = gs_sens, 
                                  ncol = 2, nrow = ceiling(length(age0s) / 2), 

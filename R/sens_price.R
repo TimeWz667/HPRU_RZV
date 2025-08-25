@@ -36,12 +36,12 @@ sens_price <- function(yss_uv) {
   
   
   sens_price <- bind_rows(
-    tibble(Price = seq(0, 300, 5), Arm = "Vac1") %>% 
+    tibble(Price = seq(0, 400, 5), Arm = "Vac1") %>% 
       mutate(
         PrCE20 = sapply(Price, \(x) mean(yd_v1$Thres20 > x)),
         PrCE30 = sapply(Price, \(x) mean(yd_v1$Thres30 > x))
       ),
-    tibble(Price = seq(0, 300, 5), Arm = "Vac2") %>% 
+    tibble(Price = seq(0, 400, 5), Arm = "Vac2") %>% 
       mutate(
         PrCE20 = sapply(Price, \(x) mean(yd_v2$Thres20 > x)),
         PrCE30 = sapply(Price, \(x) mean(yd_v2$Thres30 > x))

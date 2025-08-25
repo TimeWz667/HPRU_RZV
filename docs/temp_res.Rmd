@@ -97,10 +97,20 @@ tab_ce_re %>%
 ## Sens
 
 ```{r}
-sens_10p <- read_csv(here::here("docs", "tabs", scenario, "sens_ce1d.csv"))
+sens_10p <- read_csv(here::here("docs", "tabs", scenario, "sens_ce_uni.csv"))
+
+ord <- sens_uni %>%
+      filter(Age0  == 80) %>% 
+      group_by(Pars) %>% 
+      summarise(size = abs(diff(range(Thres20)))) %>% 
+      arrange(size) %>% 
+      pull(Pars)
+
 sens_10p %>% 
   filter(Age0 == 80) %>% 
-  mutate(Diff = Thres - Thres0) %>% 
-  select(Pars, Direction, Age0, Thres, Diff)
+  mutate(Diff = Thres20 - Thres20_0) %>% 
+  select(Pars, Direction, Age0, Thres20, Diff) %>% 
+  mutate(Pars = factor(Pars, ord)) %>% 
+  arrange(-as.numeric(Pars))
 ```
 
