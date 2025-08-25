@@ -88,6 +88,8 @@ list(
   tar_target(out_psa_price, summarise_sens_price(stats_psa_price, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_psa_price, cross(vtype, dis))),
   
   tar_target(stats_sens_ce1w, sens_ce(yss_uv), pattern = map(yss_uv)),
-  tar_target(out_sens_ce1w, summarise_sens_ce(stats_sens_ce1w, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_sens_ce1w, cross(vtype, dis)))
-
+  tar_target(out_sens_ce1w, summarise_sens_ce(stats_sens_ce1w, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_sens_ce1w, cross(vtype, dis))),
+  
+  tar_target(stats_sens_ce_uni, exec_sens_uni(pars_base, age0s = seq(60, 95, 5)), pattern = map(pars_base)),
+  tar_target(out_sens_ce_uni, summarise_sens_uni(stats_sens_ce_uni, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_sens_ce_uni, cross(vtype, dis)))
 )
