@@ -11,7 +11,7 @@ sens_ce <- function(yss_uv) {
       group_by(Age0) %>% 
       summarise(
         T20_50 = quantile(Thres20, 0.5),
-        T30_90 = quantile(Thres30, 0.9),
+        T30_90 = quantile(Thres30, 0.9), 
         Thres = pmin(T20_50, T30_90)
       )
   }

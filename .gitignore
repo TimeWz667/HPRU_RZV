@@ -11,3 +11,5 @@ pars/pars_base_*.rdata
 pars/pars_ve_zvl_rwa_*.rdata
 .Rproj.user
 data/raw/
+
+out/
