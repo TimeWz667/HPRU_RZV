@@ -228,6 +228,42 @@ summarise_proj <- function(yss) {
 }
 
 
+table_thresholds <- function(stats_uv, stats_re) {
+  tab <- bind_rows(
+    stats_uv[[2]] %>% 
+      filter(Age0 %in% seq(60, 95, 5)) %>% 
+      filter(Index == "Thres") %>% 
+      select(Age = Age0, Arm, TP = M) %>% 
+      pivot_wider(values_from = TP, names_from = Arm) %>% 
+      rename(Full1d = RZV_1d, Sole2d = RZV_2d) %>% 
+      mutate(
+        Class = "Unvaccinated",
+        Full2d = Sole2d * 2,
+        Mar2d = Full2d - Full1d
+      ),
+    stats_re[[2]] %>%
+      filter(Age0 == 70) %>% 
+      filter(Age1 %in% seq(80, 95, 5)) %>% 
+      filter(Index == "Thres") %>% 
+      filter(Scenario != "Overall") %>% 
+      select(Age = Age1, Arm, TP = M) %>% 
+      pivot_wider(values_from = TP, names_from = Arm) %>% 
+      rename(Full1d = ReRZV_1d, Sole2d = ReRZV_2d) %>% 
+      mutate(
+        Class = "ZVL@70",
+        Full2d = Sole2d * 2,
+        Mar2d = Full2d - Full1d
+      )
+  ) %>% 
+    relocate(Age, Class, Full1d, Full2d, Sole2d) %>% 
+    arrange(Age, Class)
+  
+  return(list(
+    tp_5 = tab
+  ))
+}
+
+
 save_tabs <- function(ss, prefix = "", folder = NA) {
   require(tidyverse)
   
