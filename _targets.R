@@ -58,6 +58,8 @@ list(
   tar_target(yss_proj, exec_projection(pars_proj, n_sims = 200), pattern = map(pars_proj)),
   tar_target(stats_proj, summarise_proj(yss_proj), pattern = map(yss_proj)),
   tar_target(gs_proj, vis_proj(stats_proj), pattern = map(stats_proj)),
+  
+  tar_target(stats_tp, table_thresholds(stats_uv, stats_re), pattern = map(stats_uv, stats_re)),
 
   ## Programme-based measures
   tar_target(profile, sim_profile(pars_proj), pattern = map(pars_proj)),
@@ -66,6 +68,7 @@ list(
   ## Output
   tar_target(tabs_uv, save_tabs(stats_uv, folder = paste0(vtype, "_", dis)), pattern = map(stats_uv, cross(vtype, dis))),
   tar_target(tabs_re, save_tabs(stats_re, folder = paste0(vtype, "_", dis)), pattern = map(stats_re, cross(vtype, dis))),
+  tar_target(tabs_tp, save_tabs(stats_tp, folder = paste0(vtype, "_", dis)), pattern = map(stats_tp, cross(vtype, dis))),
   tar_target(tabs_proj, save_tabs(stats_proj, folder = "proj", prefix = paste0("tab_", vtype)), pattern = map(stats_proj, vtype)),
   tar_target(tabs_prog, save_tabs(stats_prog, folder = "prog", prefix = paste0("tab_", vtype)), pattern = map(stats_prog, vtype)),
 
