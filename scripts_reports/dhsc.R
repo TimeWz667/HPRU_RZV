@@ -43,7 +43,7 @@ res_ce <- lapply(1:3, \(i) {
       mutate(
         Thres = NA
       ) %>% 
-      select(Age = Age0, Arm, Stat = name, Q_HZ, Q_Life, Q_All, C_Hosp_d, C_GP_d, C_Med_d, Thres),
+      select(Age = Age0, Arm, Stat = name, Q_HZ_d, Q_Life_d, Q_All_d, C_Hosp_d, C_GP_d, C_Med_d, Thres),
     sts[[2]] %>% 
       filter(Age0 >= 80 | Arm == "RZV_2d") %>% 
       filter(Age0 %in% ages) %>% 
@@ -56,7 +56,7 @@ res_ce <- lapply(1:3, \(i) {
       mutate(
         Arm = ifelse(Arm == "RZV_1d", "RZV_1d - SOC", "RZV_2d - SOC")
       ) %>% 
-      select(Age = Age0, Arm, Stat = name, Q_HZ, Q_Life, Q_All, C_Hosp_d, C_GP_d, C_Med_d, Thres)
+      select(Age = Age0, Arm, Stat = name, Q_HZ_d, Q_Life_d, Q_All_d, C_Hosp_d, C_GP_d, C_Med_d, Thres)
   )
 })
   
@@ -115,7 +115,7 @@ res_ce_r <- lapply(1:3, \(i) {
           T ~ "ZVL only"
         )
       ) %>% 
-      select(Age = Age1, Arm, Stat = name, Q_HZ, Q_Life, Q_All, C_Hosp_d, C_GP_d, C_Med_d, Thres),
+      select(Age = Age1, Arm, Stat = name, Q_HZ_d, Q_Life_d, Q_All_d, C_Hosp_d, C_GP_d, C_Med_d, Thres),
     sts[[2]] %>% 
       select(- N0) %>% 
       filter(Scenario != "Overall") %>%
@@ -130,7 +130,7 @@ res_ce_r <- lapply(1:3, \(i) {
       mutate(
         Arm = ifelse(Arm == "ReRZV_1d", "ReRZV_1d - ZVL only", "ReRZV_2d - ZVL only")
       ) %>% 
-      select(Age = Age1, Arm, Stat = name, Q_HZ, Q_Life, Q_All, C_Hosp_d, C_GP_d, C_Med_d, Thres)
+      select(Age = Age1, Arm, Stat = name, Q_HZ_d, Q_Life_d, Q_All_d, C_Hosp_d, C_GP_d, C_Med_d, Thres)
   )
 })
 
