@@ -14,7 +14,7 @@ load_inputs_waning <- function(pars_ce, f_ve_zvl, f_ve_rzv, end_data = 11, tag =
   
   pars <- list()
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_" + tag + "_zig.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_" + tag + "_zig.rdata")
   inp <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
   pars$zig <- inp
@@ -30,7 +30,7 @@ load_inputs_waning <- function(pars_ce, f_ve_zvl, f_ve_rzv, end_data = 11, tag =
   }
   
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_" + tag + "_zie.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_" + tag + "_zie.rdata")
   inp <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
   pars$zie <- inp

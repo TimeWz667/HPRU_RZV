@@ -4,23 +4,23 @@ load_inputs_rzv <- function(pars_ce, f_ve_zvl, f_ve_rzv, seed = 11667) {
   
   pars <- list()
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y10_zie.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y10_zie.rdata")
   pars$y10_zie <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y11_zie.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y11_zie.rdata")
   pars$y11_zie <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y11m_zie.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y11m_zie.rdata")
   pars$y11m_zie <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y10_zig.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y10_zig.rdata")
   pars$y10_zig <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y11_zig.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y11_zig.rdata")
   pars$y11_zig <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
-  f_rzv <- here::here("pars", "pars_ve_rzv_uv2_rw_y11m_zig.rdata")
+  f_rzv <- here::here("pars", "pars_ve_rzv_rw_y11m_zig.rdata")
   pars$y11m_zig <- load_inputs(pars_ce, vtype, f_ve_zvl = f_ve_zvl, f_ve_rzv = f_rzv, seed = seed)
   
   return(pars)

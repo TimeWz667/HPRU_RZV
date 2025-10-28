@@ -35,10 +35,10 @@ list(
 
   tar_target(vtype, c("rw", "tr")), # real world vs trial settings
   tar_target(f_zvl, here::here("pars", "pars_ve_zvl_rwa.rdata"), format = "file"),
-  tar_target(f_rzv, here::here("pars", "pars_ve_rzv_uv2_" + glue::as_glue(vtype) + ".rdata"), pattern = map(vtype), format = "file"),
+  tar_target(f_rzv, here::here("pars", "pars_ve_rzv_" + glue::as_glue(vtype) + ".rdata"), pattern = map(vtype), format = "file"),
   tar_target(pars_base, load_inputs(pars_ce, vtype, f_ve_zvl = f_zvl, f_ve_rzv = f_rzv, seed = 11667), pattern = cross(map(vtype, f_rzv), pars_ce)),
   tar_target(pars_proj, load_inputs_proj(pars_base), pattern = slice(pars_base, c(3, 6))), # (3.5 real world + 3.5 trial)
-  # 
+
   tar_target(f_p_base, save_pars(pars_base, f = here::here("pars", paste0("pars_base_", dis, "_", vtype, ".rdata"))),
              pattern = map(pars_base, cross(vtype, dis)), format = "file"),
 
@@ -58,7 +58,7 @@ list(
   tar_target(yss_proj, exec_projection(pars_proj, n_sims = 200), pattern = map(pars_proj)),
   tar_target(stats_proj, summarise_proj(yss_proj), pattern = map(yss_proj)),
   tar_target(gs_proj, vis_proj(stats_proj), pattern = map(stats_proj)),
-  
+
   tar_target(stats_tp, table_thresholds(stats_uv, stats_re), pattern = map(stats_uv, stats_re)),
 
   ## Programme-based measures
@@ -80,19 +80,17 @@ list(
   tar_target(pars_waning, load_inputs_waning(pars_ce, f_ve_zvl = f_zvl, f_ve_rzv = f_rzv, end_data = 11, tag = "rw_y11", seed = 11667), pattern = slice(pars_ce, 3)),
   tar_target(stats_sens_waning, sens_waning(pars_waning, age0s = seq(50, 95, 5))),
   tar_target(out_sens_waning, summarise_sens_waning(stats_sens_waning, folder = "rw_35", ext = ".png")),
-  
+
   tar_target(pars_rzv, load_inputs_rzv(pars_ce, f_ve_zvl = f_zvl, f_ve_rzv = f_rzv, seed = 11667), pattern = slice(pars_ce, 3)),
   tar_target(stats_sens_rzv, sens_rzv(pars_rzv, age0s = seq(50, 95, 5))),
   tar_target(out_sens_rzv, summarise_sens_rzv(stats_sens_rzv, folder = "rw_35", ext = ".png")),
-  
-  
-  
+
   tar_target(stats_psa_price, sens_price(yss_uv), pattern = map(yss_uv)),
   tar_target(out_psa_price, summarise_sens_price(stats_psa_price, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_psa_price, cross(vtype, dis))),
-  
+
   tar_target(stats_sens_ce1w, sens_ce(yss_uv), pattern = map(yss_uv)),
   tar_target(out_sens_ce1w, summarise_sens_ce(stats_sens_ce1w, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_sens_ce1w, cross(vtype, dis))),
-  
+
   tar_target(stats_sens_ce_uni, exec_sens_uni(pars_base, age0s = seq(60, 95, 5)), pattern = map(pars_base)),
   tar_target(out_sens_ce_uni, summarise_sens_uni(stats_sens_ce_uni, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(stats_sens_ce_uni, cross(vtype, dis)))
 )

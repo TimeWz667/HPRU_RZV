@@ -145,35 +145,17 @@ load_inputs <- function(pars_ce, vtype=c("rw", "tr"), f_ve_zvl, f_ve_rzv, seed =
   load(f_ve_rzv)
   
   if (!is.na(seed)) set.seed(seed)
-  pars$VE_RZV_2d <- pars_ve_rzv %>% 
+  ve_rzv <- pars_ve_rzv  %>% 
     filter(!IC) %>% 
-    mutate(Vaccine = "RZV_2d") %>% 
-    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
-    sample_table(n_sims) 
+    sample_table(n_sims) %>% 
+    pivot_longer(c(RZV_2d, RZV_1d, ReRZV_2d, ReRZV_1d), names_to = "Vaccine", values_to = "Protection") %>% 
+    select(Key, Vaccine, TimeVac = Yr, Protection)
   
-  
-  if (!is.na(seed)) set.seed(seed)
-  pars$VE_RZV_1d <- local({load(gsub("rzv_uv2", "rzv_uv1", f_ve_rzv)); pars_ve_rzv}) %>% 
-    filter(!IC) %>% 
-    mutate(Vaccine = "RZV_1d") %>% 
-    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
-    sample_table(n_sims) 
-  
-  
-  if (!is.na(seed)) set.seed(seed)
-  pars$VE_ReRZV_2d <- local({load(gsub("rzv_uv2", "rzv_re2", f_ve_rzv)); pars_ve_rzv}) %>% 
-    filter(!IC) %>% 
-    mutate(Vaccine = "ReRZV_2d") %>% 
-    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
-    sample_table(n_sims) 
-  
-  
-  if (!is.na(seed)) set.seed(seed)
-  pars$VE_ReRZV_1d <- local({load(gsub("rzv_uv2", "rzv_re1", f_ve_rzv)); pars_ve_rzv}) %>% 
-    filter(!IC) %>% 
-    mutate(Vaccine = "ReRZV_1d") %>% 
-    select(Key, Vaccine, TimeVac = Yr, Protection = VE) %>% 
-    sample_table(n_sims) 
+
+  pars$VE_RZV_2d <- ve_rzv %>% filter(Vaccine == "RZV_2d")
+  pars$VE_RZV_1d <- ve_rzv %>% filter(Vaccine == "RZV_1d")
+  pars$VE_ReRZV_2d <- ve_rzv %>% filter(Vaccine == "ReRZV_2d")
+  pars$VE_ReRZV_1d <- ve_rzv %>% filter(Vaccine == "ReRZV_1d")
 
   return(pars)
 }
