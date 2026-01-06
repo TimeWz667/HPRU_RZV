@@ -1,6 +1,5 @@
 ### Not run without 'data/raw/'
 
-library(targets)
 library(tidyverse)
 library(tidybayes)
 library(readxl)
@@ -34,7 +33,7 @@ alpha_unused <- 0.4
 
 gs$g_r_hz <- pars$Epidemiology %>% 
   ggplot() +
-  stat_lineribbon(aes(x = Age, y = r_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
+  tidybayes::stat_lineribbon(aes(x = Age, y = r_hz), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
   scale_fill_brewer("Interval") +
   geom_pointinterval(data = epi_hz %>% filter(Age < 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
   geom_pointinterval(data = epi_hz %>% filter(Age >= 90), aes(x = Age, y = M, ymin = L, ymax = U), alpha = alpha_unused, linetype = 2) +
@@ -123,7 +122,7 @@ gs$g_ql_ph <- pars$CostEff %>%
   ggplot() +
   stat_lineribbon(aes(x = Age, y = QL_ph), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
   scale_fill_brewer("Interval") +
-  scale_y_continuous("QALYs per case") +
+  scale_y_continuous("QALY loss per case") +
   labs(subtitle = "Health-related QoL loss due to herpes zoster", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.22), xlim = c(48, 102), expand = FALSE)
 
@@ -134,7 +133,7 @@ gs$g_ql_pn <- pars$CostEff %>%
   ggplot() +
   stat_lineribbon(aes(x = Age, y = QL_pn), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
   scale_fill_brewer("Interval") +
-  scale_y_continuous("QALYs per case") +
+  scale_y_continuous("QALY loss per case") +
   labs(subtitle = "Health-related QoL loss due to HZ", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.065), xlim = c(48, 102), expand = FALSE)
 
@@ -145,7 +144,7 @@ gs$g_ql_0 <- pars$CostEff %>%
   ggplot() +
   stat_lineribbon(aes(x = Age, y = QL_0), .width = c(.95, .8, .5), color = "#08519C", alpha = 0.6) +
   scale_fill_brewer("Interval") +
-  scale_y_continuous("QALYs per case") +
+  scale_y_continuous("QALY loss per case") +
   labs(subtitle = "Health-related QoL loss due to HZ", colour = "Level") +
   coord_cartesian(ylim = c(0, 0.1501), xlim = c(48, 102), expand = FALSE)
 
