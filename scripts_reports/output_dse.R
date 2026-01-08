@@ -6,6 +6,7 @@ tab_ce_re <- read_csv(here::here("docs", "tabs", scenario, "stats_re_ce.csv"))
 tab_ce_uv <- read_csv(here::here("docs", "tabs", scenario, "stats_uv_ce.csv"))
 
 
+
 bind_rows(
   tab_ce_uv %>% 
     filter(Arm == "RZV_2d") %>% 
@@ -22,9 +23,14 @@ bind_rows(
     #filter(Arm == "ReRZV_1d") %>% 
     filter(Index == "Thres") %>% 
     select(Age0, Age = Age1, Arm, Thres = M) %>% 
-    filter(Age %in% seq(60, 100, 5))
+    filter(Age %in% seq(60, 100, 5)) %>% 
+    filter(Age0 == 70)
 ) %>% 
   relocate(Age0, Age, Arm, Thres) %>%
   arrange(Arm, Age) %>% 
+  extract(Arm, c("Arm", "Dose"), "(\\w+)_(1d|2d)") %>% arrange(Dose, Age) %>% 
+  pivot_wider(names_from = Dose, values_from = Thres, names_prefix = "Reg") %>% 
+  relocate(Age0, Age, Arm, Reg2d, Reg1d) %>% 
   write_csv(here::here("docs", "manuscript", "threshold_price.csv"))
+  
 
