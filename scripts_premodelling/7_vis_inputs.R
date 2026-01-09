@@ -9,6 +9,7 @@ theme_set(theme_bw())
 
 load(here::here("data", "processed_epi", "Epi_HZ_CPRD_23Nov19.rdata"))
 load(here::here("data", "processed_epi", "Epi_HZ_CPRD_GPR.rdata"))
+load(here::here("data", "processed_epi", "Epi_HZ_NIC_CPRD_bind.rdata"))
 
 
 gs <- list()
@@ -17,7 +18,7 @@ gs <- list()
 gs$g_gpr_r_hz <- Epi_HZ %>% 
   ggplot() +
   stat_interval(aes(x = Age, y = r_hz)) +
-  geom_pointinterval(data = epi_hz %>% filter(Age <= 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
+  geom_pointinterval(data = Epi_HZ %>% filter(Age <= 90), aes(x = Age, y = M, ymin = L, ymax = U)) +
   scale_colour_brewer() +
   facet_wrap(.~ IC, scales = "free_y", labeller = label_both) +
   scale_y_continuous("Incidence HZ per 1,000", labels = scales::number_format(scale = 1e3)) +
