@@ -50,7 +50,7 @@ list(
   tar_target(stats_re, summarise_cohort_re(yss_re), pattern = map(yss_re)),
 
   tar_target(gs_thres, vis_thres(stats_uv, stats_re), pattern = map(stats_uv, stats_re)),
-
+  
   tar_target(yss_re_g, exec_cohort_rerzv(pars_base, age0s = 70:79, age1s = 80:99), pattern = map(slice(pars_base, c(3, 6)))),
   tar_target(stats_re_g, summarise_cohort_re(yss_re_g), pattern = map(yss_re_g)),
 
@@ -75,6 +75,14 @@ list(
   tar_target(figs_thres, save_fig_thres(gs_thres, folder = paste0(vtype, "_", dis), ext = ".png"), pattern = map(gs_thres, cross(vtype, dis))),
   tar_target(figs_proj, save_fig_proj(gs_proj, folder = "proj", prefix = vtype, ext = ".png"), pattern = map(gs_proj, vtype)),
 
+  
+  ## Revision
+  tar_target(stats_uv_rev, summarise_cohort_rev(yss_uv, wtp_m = 25000, wtp_h = 35000), pattern = map(yss_uv)),
+  tar_target(stats_re_rev, summarise_cohort_rev_re(yss_re, wtp_m = 25000, wtp_h = 35000), pattern = map(yss_re)),
+  tar_target(gs_thres_rev, vis_thres_rev(stats_uv_rev, stats_re_rev), pattern = map(stats_uv_rev, stats_re_rev)),
+  tar_target(figs_thres_rev, save_fig_thres(gs_thres_rev, folder = paste0(vtype, "_", dis), ext = "_rev.png"), pattern = map(gs_thres_rev, cross(vtype, dis))),
+  
+  
   ## Sensitivity analyses
 
   tar_target(pars_waning, load_inputs_waning(pars_ce, f_ve_zvl = f_zvl, f_ve_rzv = f_rzv, end_data = 11, tag = "rw_y11", seed = 11667), pattern = slice(pars_ce, 3)),
